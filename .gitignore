@@ -1,0 +1,9 @@
+## python cache:
+*.pyc
+*.png
+*.pdf
+*.p
+*.svg
+/__pycache__
+
+
