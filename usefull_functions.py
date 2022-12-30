@@ -126,14 +126,14 @@ def removeFeatures(dict,features =['']):
 
 
 import pickle 
-def pickle_dump(file_name, dict):
-  with open('data/'+file_name+'.p', "wb") as f:
+def pickle_dump(file_name, dict,dir_data):
+  with open(dir_data+file_name+'.p', "wb") as f:
     pickle.dump(dict, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 
     
-def pickle_load(file_name):    
-  with open('data/' + file_name + '.p', 'rb') as f:
+def pickle_load(file_name,dir_data):    
+  with open(dir_data  + file_name + '.p', 'rb') as f:
       dict = pickle.load(f)
       print(file_name,'; loaded from file')
       return dict
