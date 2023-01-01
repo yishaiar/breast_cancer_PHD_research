@@ -315,36 +315,7 @@ def calculate_dbscan(data,eps=0.1,min_samples=50):
       print('Silhouette impossible; only 1 cluster recognized')
     return X,labels,core_samples_mask
 
-def plot_dbscan(X,labels,core_samples_mask,dir,show = True,title='',figname=''):
-    # Black removed and is used for noise instead.
-    plt.figure(figsize=(6, 5))
-    unique_labels = set(labels)
-    colors = [plt.cm.Spectral(each)
-              for each in np.linspace(0, 1, len(unique_labels))]
-    for k, col in zip(unique_labels, colors):
-        if k == -1:
-            # Black used for noise.
-            col = [0, 0, 0, 1]
 
-        class_member_mask = (labels == k)
-        
-        xy = X[class_member_mask & core_samples_mask]
-        plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),label = k,
-                 markeredgecolor='k', markersize=14)
-        
-        xy = X[class_member_mask & ~core_samples_mask]
-        plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
-                 markeredgecolor='k', markersize=6)
-    
-    plt.legend(fontsize=15, title_fontsize='40')    
-    # plt.title('Estimated number of clusters: %d' % n_clusters_)
-    plt.title(title)
-    plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
-            
-    if show:
-        plt.show()
-    else:
-        plt.close()
     
 
 
@@ -473,21 +444,7 @@ def calculate_umap(data,n_neighbors=15, min_dist=0.1, n_components=2, metric='eu
     )
     u = fit.fit_transform(data)
     return u
-def draw_umap (umap_data,cc,dir ='',show = True,title='',figname = ''):
-    plt.figure(figsize=(6, 5))
-       
-    plt.scatter(umap_data[:,0], umap_data[:,1], c=cc,s=3,cmap=plt.cm.seismic)
-    plt.clim(-5,5)
-    plt.colorbar()
-    # plt.title(title, fontsize=18)
-    
-    plt.title(title)
-    
-    plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
-    if show:
-        plt.show()
-    else:
-        plt.close()
+
     
 
 def NormMark(data):
