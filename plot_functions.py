@@ -113,7 +113,7 @@ def HeatMap(K,names,settings,title = '',figname = '' ):
     amax=Mat[names].max().max()
     g=sns.clustermap(Mat[names].T,cmap=plt.cm.seismic,vmin=amin,vmax=amax,
                     # figsize=(10,20), annot_kws={"size":8}, center=0,
-                    figsize=(6, 5), annot_kws={"size":8}, center=0,
+                    figsize=(6, 6), annot_kws={"size":8}, center=0,
                     annot=True, linewidths=1,linecolor='k',)
     g.ax_col_dendrogram.set_title(title) 
     
@@ -226,7 +226,7 @@ def dbscan_params(X_2d,dir_plots,
 
    
    
-def MeanDist(data1,data2,Markers,settings,title='',figname = '',xsize = 20):
+def MeanDist(data1,data2,Markers,settings,title='',figname = '',font_size = 10):
     
     sns.set_style({'legend.frameon':True})
  
@@ -242,8 +242,8 @@ def MeanDist(data1,data2,Markers,settings,title='',figname = '',xsize = 20):
     plt.hlines(y=diffs.index, xmin=0, xmax=diffs, color=colors, alpha=1, linewidth=5)
     # Decorations
     plt.gca().set(ylabel='', xlabel='')
-    plt.xticks(fontsize=xsize  ) 
-    plt.yticks(fontsize=16 ) 
+    plt.xticks(fontsize=font_size  ) 
+    plt.yticks(fontsize=font_size ) 
     # plt.xscale('symlog')
     
 

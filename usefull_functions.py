@@ -102,6 +102,7 @@ def imList2pdf(dir_plots,j):
             counter = 0
         if im_name.endswith ('png'):
             
+            
             # print(im_name)
         
             

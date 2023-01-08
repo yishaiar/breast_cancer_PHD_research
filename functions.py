@@ -294,26 +294,7 @@ def wfall(shap_values, max_display=10, show=True):
     if show:
         pl.show()
 
-def calculate_dbscan(data,eps=0.1,min_samples=50):
-    X=data
-    X = StandardScaler().fit_transform(X)
-    db = DBSCAN(eps=eps, min_samples=min_samples).fit(X)
-    core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
-    core_samples_mask[db.core_sample_indices_] = True
-    labels = db.labels_
 
-    # Number of clusters in labels, ignoring noise if present.
-    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-    n_noise_ = list(labels).count(-1)
-
-    print('Estimated number of clusters: %d' % n_clusters_)
-    print('Estimated number of noise points: %d' % n_noise_)
-    try:
-      print("Silhouette Coefficient: %0.3f"
-            % metrics.silhouette_score(X, labels))
-    except:
-      print('Silhouette impossible; only 1 cluster recognized')
-    return X,labels,core_samples_mask
 
 
     
@@ -435,15 +416,7 @@ def statistic(dframe):
 #     return u, fig
 
 
-def calculate_umap(data,n_neighbors=15, min_dist=0.1, n_components=2, metric='euclidean', rstate=42,dens=False):
-    fit = umap.UMAP(
-        n_neighbors=n_neighbors,
-        min_dist=min_dist,
-        n_components=n_components,
-        metric=metric, random_state=rstate, verbose=True, densmap=dens
-    )
-    u = fit.fit_transform(data)
-    return u
+
 
     
 
