@@ -7,8 +7,8 @@ from sklearn.preprocessing import StandardScaler, KBinsDiscretizer
 from sklearn.metrics import silhouette_samples,silhouette_score
 # from sklearn.neighbors import kneighbors_graph
 
-def calculate_dbscan(data,eps=0.1,min_samples=50):
-    X=data
+def calculate_dbscan(X,eps=0.1,min_samples=50):
+    
     X = StandardScaler().fit_transform(X)
     db = DBSCAN(eps=eps, min_samples=min_samples).fit(X)
     core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
