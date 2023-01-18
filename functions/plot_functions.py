@@ -105,10 +105,10 @@ def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname
         
      
 
-def HeatMap(K,names,settings,title = '',figname = '' ):
+def HeatMap(k_clust,names,settings,title = '',figname = '' ):
     dir,show,saveSVG = settings
-
-    Mat=K[K.Clust!=-1].groupby(by='Clust').mean()[names]
+    # k_clust = K[K.Clust!=-1]
+    Mat=k_clust.groupby(by='Clust').mean()[names]
     amin=Mat[names].min().min()
     amax=Mat[names].max().max()
     g=sns.clustermap(Mat[names].T,cmap=plt.cm.seismic,vmin=amin,vmax=amax,

@@ -66,21 +66,7 @@ def test_fetures(name):
 from os import listdir
 from os.path import isfile, join
 from fpdf import FPDF
-import cairosvg
 
-def svg2png(dir_plots,j = '0'):
-    print(dir_plots)
-        
-    imagelist = [ join(dir_plots, f) for f in listdir(dir_plots) if isfile(join(dir_plots, f))]
-    for im_name in imagelist:
-        if im_name.endswith ('png'):
-          imagelist.remove (im_name[:-4])
-          print(im_name[:-4])
-    for im_name in imagelist:
-        if im_name.endswith ('svg'):
-            new_name = im_name+'.png'
-            cairosvg.svg2png(url=im_name, write_to=new_name)
-            
 
 
 
