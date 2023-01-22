@@ -113,7 +113,7 @@ def HeatMap(k_clust,names,settings,title = '',figname = '' ):
     amax=Mat[names].max().max()
     g=sns.clustermap(Mat[names].T,cmap=plt.cm.seismic,vmin=amin,vmax=amax,
                     # figsize=(10,20), annot_kws={"size":8}, center=0,
-                    figsize=(6, 6), annot_kws={"size":8}, center=0,
+                    figsize=(6, 6), annot_kws={"size":5}, center=0,
                     annot=True, linewidths=1,linecolor='k',)
     g.ax_col_dendrogram.set_title(title) 
     
