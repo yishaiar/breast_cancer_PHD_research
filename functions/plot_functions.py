@@ -34,6 +34,63 @@ def drawUMAP(X_2d, NamesAll,CAll,settings,title = '',Figname = '' ):
             plt.show()
         else:
             plt.close()
+import matplotlib.cm as cm
+import matplotlib.patches as mpatches
+def drawUMAP_intVals(X_2d, M,CAll,settings,title = '',Figname = '' ):
+    
+    # max_ = int(np.max(CAll[M])+1)
+    # colors1 = np.arange(max_)
+    # colors = cm.rainbow(colors1/max_)
+    
+    # cc = colors[(CAll[M]-1).astype(int)]
+    # plt.figure(figsize=(6, 5))
+    
+    # plt.scatter(X_2d[:,0],X_2d[:,1],c = cc, alpha=0.2,s=2)
+    # # plt.legend([['0','1','2','3','4','5'])
+    # recs = []
+    # for i in range(0,max_):
+    #     recs.append(mpatches.Rectangle((0,0),1,1,fc=colors[i]))
+    # plt.legend(recs,['0','1','2','3','4','5'],loc=4)
+
+
+
+    arr = np.unique(CAll[M]).astype(int)
+    max_ = arr.shape[0]
+    colors1 = np.arange(max_)
+    arr1  = np.zeros(arr.max())
+    ind=0
+    for i in arr:
+        arr1[int(i-1)] = int(colors1[ind])
+        ind+=1
+    
+    colors = cm.rainbow(colors1/(max_-1))
+    
+    cc = colors[(arr1[(CAll[M]-1).astype(int)]).astype(int)]
+    plt.figure(figsize=(6, 5))
+    
+    plt.scatter(X_2d[:,0],X_2d[:,1],c = cc, alpha=0.2,s=2)
+    # plt.legend([['0','1','2','3','4','5'])
+    recs = []
+    lgd=[]
+    for i in range(0,max_):
+        recs.append(mpatches.Rectangle((0,0),1,1,fc=colors[i]))
+        lgd.append(str(arr[i]))
+    plt.legend(recs,lgd,loc=4)
+    
+        
+    
+    plt.title(title+ " - "+M)
+    
+    figname = Figname + M
+
+    dir,show,saveSVG = settings
+    plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
+    if saveSVG:
+        plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
+    if show:
+        plt.show()
+    else:
+        plt.close()
             
 def drawDbscan(X,labels,core_samples_mask,settings,title='',figname=''):
     # Black removed and is used for noise instead.
@@ -113,7 +170,7 @@ def HeatMap(k_clust,names,settings,title = '',figname = '' ):
     amax=Mat[names].max().max()
     g=sns.clustermap(Mat[names].T,cmap=plt.cm.seismic,vmin=amin,vmax=amax,
                     # figsize=(10,20), annot_kws={"size":8}, center=0,
-                    figsize=(6, 6), annot_kws={"size":5}, center=0,
+                    figsize=(6, 10), annot_kws={"size":8}, center=0,
                     annot=True, linewidths=1,linecolor='k',)
     g.ax_col_dendrogram.set_title(title) 
     
