@@ -23,6 +23,10 @@ def removeFeatures(dict,features =['']):
 
 
 
+
+
+
+
 def pickle_dump(file_name, dict,dir_data):
   with open(dir_data+file_name+'.p', "wb") as f:
     pickle.dump(dict, f, protocol=pickle.HIGHEST_PROTOCOL)

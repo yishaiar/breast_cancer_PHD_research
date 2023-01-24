@@ -52,7 +52,7 @@ def drawUMAP_intVals(X_2d, M,CAll,settings,title = '',Figname = '' ):
     #     recs.append(mpatches.Rectangle((0,0),1,1,fc=colors[i]))
     # plt.legend(recs,['0','1','2','3','4','5'],loc=4)
 
-
+    
 
     arr = np.unique(CAll[M]).astype(int)
     max_ = arr.shape[0]
@@ -74,7 +74,9 @@ def drawUMAP_intVals(X_2d, M,CAll,settings,title = '',Figname = '' ):
     lgd=[]
     for i in range(0,max_):
         recs.append(mpatches.Rectangle((0,0),1,1,fc=colors[i]))
-        lgd.append(str(arr[i]))
+        percentage = ClustFeaturePercentage(CAll,M,arr[i])
+        # lgd.append(f'{arr[i]} = {percentage}%')
+        lgd.append(f'{arr[i]}')
     plt.legend(recs,lgd,loc=4)
     
         
@@ -91,7 +93,15 @@ def drawUMAP_intVals(X_2d, M,CAll,settings,title = '',Figname = '' ):
         plt.show()
     else:
         plt.close()
-            
+def ClustFeaturePercentage(cluster,feature,feature_val):
+    # for f1 in np.unique(k[feature1]):
+    #     print(f'{feature1} number: {f1}')
+    #     cluster = k[k[feature1] == f1]
+    #     clust_size = len(cluster)
+    clust_size = len(cluster)
+    sample = cluster[cluster[feature] == feature_val]
+    percentage = len(sample)/clust_size*100
+    return percentage            
 def drawDbscan(X,labels,core_samples_mask,settings,title='',figname=''):
     # Black removed and is used for noise instead.
     plt.figure(figsize=(6, 5))
