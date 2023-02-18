@@ -76,39 +76,50 @@ from fpdf import FPDF
 
 # cairosvg.svg2png(url=im_name, write_to=im_name+'.png')
 
-def imList2pdf(dir_plots,j):
+def imList2pdf(dir_plots,j,groups):
         
     print(dir_plots)
     
-    imagelist = [ join(dir_plots, f) for f in listdir(dir_plots) if isfile(join(dir_plots, f))]
-    imagelist.sort()
-    pdf = FPDF()
-    pdf.add_page()
-    counter = 0
-    
-    for im_name in tqdm(imagelist):
-        if counter ==2:
-            pdf.add_page()
-            counter = 0
-        if im_name.endswith ('png'):
+    totalImagelist = [ join(dir_plots, f) for f in listdir(dir_plots) if isfile(join(dir_plots, f)) and f.endswith ('png')]
+    for group in groups:
+        name = j+'_'+group+'_'
+        print(name)
+        imagelist = [ f for f in totalImagelist if name in f]
+        imagelist.sort()
+        
+
+        pdf = FPDF()
+        pdf.add_page()
+
+        for im_name in tqdm(imagelist):
+            
+            pdf.image(im_name,x = 0,y = 50,w = 210,h = 210)
+            # counter +=1
+            pdf.add_page()           
+        pdf.output(dir_plots+name+'.pdf', "F")   
+    # counter = 0   
+    # for im_name in tqdm(imagelist):
+    #     if counter ==2:
+    #         pdf.add_page()
+    #         counter = 0
+    #     if im_name.endswith ('png'):
             
             
-            # print(im_name)
+    #         # print(im_name)
         
             
-            pdf.image(im_name,x = 0,y = 50+ 120* counter,w = 210,h = 100)
-            counter +=1
+    #         pdf.image(im_name,x = 0,y = 50+ 120* counter,w = 210,h = 100)
+    #         counter +=1
         
-            
-    pdf.output(dir_plots+j+'.pdf', "F")
+
     
     
 def subsample_data(k,name,n=5000):
     for i, K in k.items():
         print (name+i+ ' size = ', len(K))
-        if len(K)>5000:
+        if len(K)>n:
         #     # random sample -much larger sample
-            idx=np.random.choice(len(K), replace = False, size = 5000)
+            idx=np.random.choice(len(K), replace = False, size = n)
             # newK = K.iloc[[idx]]
             k[i]=K.iloc[idx]
             print ('           ',name+i+ ' new size = ', len(k[i]))

@@ -38,21 +38,26 @@ def splitInversePDF(K,i,feature, min_x = 'None'):
     # get data value for data with highest probability (peak)
       
   kernel = stats.gaussian_kde(K[feature])
-  r=np.linspace(K[feature].min(),5,100)
+  r=np.linspace(K[feature].min(),K[feature].max()*1.1,200)
   if min_x =='None':
     # avoid zero division using max; # inv_data = 1/np.maximum(1e-9,kernel(r))
     inv_data = 1/kernel(r)
+    # inv_data[inv_data>1e6]=0
+    # inv_data[inv_data>1e6]=inv_data.min()
+    # inv_data = inv_data/(inv_data.max()-inv_data.min())
+    # inv_data = np.log(inv_data)
 
     # minima : use builtin function fo find (min) peaks (use inversed data)
     # get index of input vector peaks, widths input - expected width of peaks of interest
     # min_peakind = signal.find_peaks_cwt(inv_data,np.arange(0.02,20,0.001))
-    min_peakind = signal.find_peaks_cwt(inv_data,np.arange(1,100))
+    min_peakind = signal.find_peaks_cwt(inv_data,np.arange(0.001,40,0.001))
+    
 
     min_x = r[min_peakind[0]]
     
-  KCD45Neg = K[K[feature]<min_x].copy()
+  
   min_y = kernel(min_x)[0]
-  return KCD45Neg ,min_x, min_y
+  return min_x, min_y
 
 
 
@@ -143,6 +148,7 @@ def Mean_Core_normalization(K, ToNorm,coreFetures=['H3.3','H4']):
     return K
 
 def scale_data(K):
+    # calculated for each feature colomn on all samples (rows)
     aaaa=pd.concat([K]).copy()
     m=np.mean(aaaa, axis=0)
     s=np.std(aaaa)

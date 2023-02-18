@@ -8,6 +8,9 @@ from matplotlib.pyplot import rc_context
 import pandas as pd
 
 
+from csv import writer
+
+
 from functions import *
 
 
@@ -36,25 +39,11 @@ def drawUMAP(X_2d, NamesAll,CAll,settings,title = '',Figname = '' ):
             plt.close()
 import matplotlib.cm as cm
 import matplotlib.patches as mpatches
-def drawUMAP_intVals(X_2d, M,CAll,settings,title = '',Figname = '' ):
+def drawUMAP_intVals(X_2d, k,ind_cluster,M,settings,title = '',Figname = '' ):
     
-    # max_ = int(np.max(CAll[M])+1)
-    # colors1 = np.arange(max_)
-    # colors = cm.rainbow(colors1/max_)
-    
-    # cc = colors[(CAll[M]-1).astype(int)]
-    # plt.figure(figsize=(6, 5))
-    
-    # plt.scatter(X_2d[:,0],X_2d[:,1],c = cc, alpha=0.2,s=2)
-    # # plt.legend([['0','1','2','3','4','5'])
-    # recs = []
-    # for i in range(0,max_):
-    #     recs.append(mpatches.Rectangle((0,0),1,1,fc=colors[i]))
-    # plt.legend(recs,['0','1','2','3','4','5'],loc=4)
-
     
 
-    arr = np.unique(CAll[M]).astype(int)
+    arr = np.unique(k[ind_cluster][M]).astype(int)
     max_ = arr.shape[0]
     colors1 = np.arange(max_)
     arr1  = np.zeros(arr.max())
@@ -65,21 +54,24 @@ def drawUMAP_intVals(X_2d, M,CAll,settings,title = '',Figname = '' ):
     
     colors = cm.rainbow(colors1/(max_-1))
     
-    cc = colors[(arr1[(CAll[M]-1).astype(int)]).astype(int)]
+    cc = colors[(arr1[(k[ind_cluster][M]-1).astype(int)]).astype(int)]
     plt.figure(figsize=(6, 5))
-    
-    plt.scatter(X_2d[:,0],X_2d[:,1],c = cc, alpha=0.2,s=2)
+    plt.scatter(X_2d[:,0],X_2d[:,1],c = 'white', alpha=0.2,s=2)
+    plt.scatter(X_2d[ind_cluster][:,0],X_2d[ind_cluster][:,1],c = cc,s=2)
     # plt.legend([['0','1','2','3','4','5'])
     recs = []
     lgd=[]
+    percentage_arr =[]
     for i in range(0,max_):
         recs.append(mpatches.Rectangle((0,0),1,1,fc=colors[i]))
-        percentage = ClustFeaturePercentage(CAll,M,arr[i])
-        # lgd.append(f'{arr[i]} = {percentage}%')
-        lgd.append(f'{arr[i]}')
-    plt.legend(recs,lgd,loc=4)
+        percentage = ClustFeaturePercentage(k[ind_cluster],M,arr[i])
+        lgd.append(f'{arr[i]} = {np.round(percentage,2)}%')
+        percentage_arr.append([arr[i],percentage]) 
+        # lgd.append(f'{arr[i]}')
+    # plt.legend(recs,lgd,loc=4)
+    plt.legend(recs,lgd,loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=5)
     
-        
+   
     
     plt.title(title+ " - "+M)
     
@@ -93,6 +85,16 @@ def drawUMAP_intVals(X_2d, M,CAll,settings,title = '',Figname = '' ):
         plt.show()
     else:
         plt.close()
+
+    return percentage_arr
+def saveCsv(dir_plots,name,arr):
+    with open(dir_plots+name+'.csv', 'a') as f:
+        w= writer(f)
+        for i,m in arr:
+            for j ,k in m:
+                row = [f'{name}: cluster {i} sample {j} = {k}']
+                w.writerow(row)
+                print(f'{name}: cluster {i} sample {j} = {k}') 
 def ClustFeaturePercentage(cluster,feature,feature_val):
     # for f1 in np.unique(k[feature1]):
     #     print(f'{feature1} number: {f1}')
@@ -123,7 +125,10 @@ def drawDbscan(X,labels,core_samples_mask,settings,title='',figname=''):
         plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
                  markeredgecolor='k', markersize=6)
     
-    plt.legend(fontsize=15, title_fontsize='40')    
+    # plt.legend(fontsize=15, title_fontsize='40') 
+    plt.legend(fontsize=15, title_fontsize='40',
+        loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=5)
+       
     # plt.title('Estimated number of clusters: %d' % n_clusters_)
     plt.title(title)
     
@@ -172,10 +177,10 @@ def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname
         
      
 
-def HeatMap(k_clust,names,settings,title = '',figname = '' ):
+def HeatMap(k_clust,names,settings,clustFeature='Clust',title = '',figname = '' ):
     dir,show,saveSVG = settings
     # k_clust = K[K.Clust!=-1]
-    Mat=k_clust.groupby(by='Clust').mean()[names]
+    Mat=k_clust.groupby(by=clustFeature).mean()[names]
     amin=Mat[names].min().min()
     amax=Mat[names].max().max()
     g=sns.clustermap(Mat[names].T,cmap=plt.cm.seismic,vmin=amin,vmax=amax,
@@ -328,18 +333,18 @@ def MeanDist(data1,data2,Markers,settings,title='',figname = '',font_size = 10):
 
 
 def plotSplit(K,i,min_x,min_y,settings,Figname):
-  plt.figure(figsize=(6, 5))
-  plt.title(f'K{i} ; limit = {np.round(min_x[i],4)}')
-  sns.kdeplot(K['CD45'])
-  plt.scatter(min_x[i],min_y[i])
-  
-  figname = '/K'+i+ Figname
-  
-  dir,show,saveSVG = settings
-  plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
-  if saveSVG:
-      plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
-  if show:
-      plt.show()
-  else:
-      plt.close()
+    plt.figure(figsize=(6, 5))
+    plt.title(f'K{i} ; limit = {np.round(min_x[i],4)}')
+    sns.kdeplot(K['CD45'])
+    plt.scatter(min_x[i],min_y[i])
+    
+    figname = '/K'+i+ Figname
+    
+    dir,show,saveSVG = settings
+    plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
+    if saveSVG:
+        plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
+    # if show:
+    plt.show()
+    # else:
+    #     plt.close()
