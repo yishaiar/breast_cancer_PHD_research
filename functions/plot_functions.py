@@ -44,15 +44,18 @@ def drawUMAP_intVals(X_2d, k,ind_cluster,M,settings,title = '',Figname = '' ):
     
 
     arr = np.unique(k[ind_cluster][M]).astype(int)
-    max_ = arr.shape[0]
-    colors1 = np.arange(max_)
+    # max_ = arr.shape[0]
+    # colors1 = np.arange(max_)
+    colors1 = np.arange(arr.max())
     arr1  = np.zeros(arr.max())
     ind=0
     for i in arr:
         arr1[int(i-1)] = int(colors1[ind])
         ind+=1
     
-    colors = cm.rainbow(colors1/(max_-1))
+    # colors = cm.rainbow(colors1/(max_-1))
+    colors = cm.rainbow(colors1/(arr.max()-1))
+
     
     cc = colors[(arr1[(k[ind_cluster][M]-1).astype(int)]).astype(int)]
     plt.figure(figsize=(6, 5))
@@ -62,7 +65,9 @@ def drawUMAP_intVals(X_2d, k,ind_cluster,M,settings,title = '',Figname = '' ):
     recs = []
     lgd=[]
     percentage_arr =[]
-    for i in range(0,max_):
+    
+    arr = np.unique(k[ind_cluster][M]).astype(float)
+    for i in range(0,arr.shape[0]):
         recs.append(mpatches.Rectangle((0,0),1,1,fc=colors[i]))
         percentage = ClustFeaturePercentage(k[ind_cluster],M,arr[i])
         lgd.append(f'{arr[i]} = {np.round(percentage,2)}%')
@@ -146,12 +151,13 @@ def drawDbscan(X,labels,core_samples_mask,settings,title='',figname=''):
             
 
     
-def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname = '' ):
+def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname = '',numSubplots = 3 ):
     
          
     colors = cm.rainbow(np.linspace(0, 1, len (k.keys())))
+    
     for M in NamesAll: 
-        fig, ax = plt.subplots(1,2,figsize=(10,4))
+        fig, ax = plt.subplots(1,numSubplots,figsize=(int(5*numSubplots),4))
         for [i, K],color,fig_num in zip(k.items(),colors,figures):
             fig_num -= 1
             
@@ -161,6 +167,7 @@ def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname
               # sns.kdeplot(K2[M],c='g',label='Tumor 2')
               ax[fig_num].title.set_text(title)
               ax[fig_num].legend()
+              
             except:
               pass
         figname = Figname + M
@@ -181,9 +188,14 @@ def HeatMap(k_clust,names,settings,clustFeature='Clust',title = '',figname = '' 
     dir,show,saveSVG = settings
     # k_clust = K[K.Clust!=-1]
     Mat=k_clust.groupby(by=clustFeature).mean()[names]
-    amin=Mat[names].min().min()
-    amax=Mat[names].max().max()
-    g=sns.clustermap(Mat[names].T,cmap=plt.cm.seismic,vmin=amin,vmax=amax,
+    Mat = Mat[names]
+    plotHeatMap(Mat,title,settings,figname)
+def plotHeatMap(Mat,title,settings,figname):    
+    amin=Mat.min().min()
+    amax=Mat.max().max()
+
+    # vmin,vmax - defines the  colormap dynamic range
+    g=sns.clustermap(Mat.T,cmap=plt.cm.seismic,vmin=amin,vmax=amax,
                     # figsize=(10,20), annot_kws={"size":8}, center=0,
                     figsize=(6, 10), annot_kws={"size":8}, center=0,
                     annot=True, linewidths=1,linecolor='k',)
@@ -332,12 +344,13 @@ def MeanDist(data1,data2,Markers,settings,title='',figname = '',font_size = 10):
         plt.close()
 
 
-def plotSplit(K,i,min_x,min_y,settings,Figname):
+def plotSplit(K,i,min_x,min_y,settings,Figname,log = True):
     plt.figure(figsize=(6, 5))
-    plt.title(f'K{i} ; limit = {np.round(min_x[i],4)}')
+    plt.title(f'K{i} ; limit = {np.round(min_x,4)}')
     sns.kdeplot(K['CD45'])
-    plt.scatter(min_x[i],min_y[i])
-    
+    plt.scatter(min_x,min_y)
+    if log:
+        plt.yscale('log')
     figname = '/K'+i+ Figname
     
     dir,show,saveSVG = settings
@@ -348,3 +361,12 @@ def plotSplit(K,i,min_x,min_y,settings,Figname):
     plt.show()
     # else:
     #     plt.close()
+
+
+    #     # f, ax = plt.subplots(figsize=(6, 5))
+    # # ax.set(xscale="log", yscale="log")
+    # plt.yscale('log')
+    # plt.figure(figsize=(6, 5))
+    # plt.title(f'K{i} ; limit = {np.round(min_x[i],4)}')
+    # sns.kdeplot(K['CD45'])
+    # plt.scatter(min_x[i],min_y[i])

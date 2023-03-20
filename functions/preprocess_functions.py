@@ -7,18 +7,18 @@ import pandas as pd
 
 def Gate(data,name,GateColumns):
     ddf=data.copy()
-    print(name, 'gating on: ', GateColumns)
-    print("Initial number of samples: ",len(ddf))
+    # print(name, 'gating on: ', GateColumns)
+    # print("Initial number of samples: ",len(ddf))
     # index of gating values ddf[['H3.3','H4']] larger than  Core gate value(5) 
     ind = (ddf[GateColumns]>5).all(axis=1)   
     ddf=ddf[ind]
-    print("Core Gate: ",len(ddf))
+    # print("Core Gate: ",len(ddf))
     
     # index of quantile 99.99% gating values (remove outliers)
     quantile = np.quantile(ddf,0.9999,axis=0)
     outliers = ddf[(ddf>quantile).any(axis=1)]
     ddf=ddf[(ddf<quantile).all(axis=1)]
-    print("Outlier Gate: ",len(ddf), ', samples removed:', len(outliers))
+    # print("Outlier Gate: ",len(ddf), ', samples removed:', len(outliers))
     # outliers distribution is not in a specific feature:
     
     # outliers [ outliers>quantile] = None

@@ -2,6 +2,7 @@ import os
 import pickle 
 from tqdm import tqdm
 import numpy as np
+import pandas as pd
     
 def deleteVars(to_delete=[]):
   for _var in to_delete:
@@ -54,16 +55,17 @@ def test_fetures(name):
     Core = name['Core'].copy()
  
     new_NamesAll = CellIden+EpiCols + Core
-    test1 = all(item in new_NamesAll for item in NamesAll)
+    test1 = all(item in  NamesAll  for item in new_NamesAll)
+    test3 = all(item in  new_NamesAll  for item in NamesAll)
     # print (test1)
-    if not test1:
-        for i in new_NamesAll:
-            NamesAll.remove(i)
+    # if not test1:
+    #     for i in new_NamesAll:
+    #         NamesAll.remove(i)
         
     # print(NamesAll)
 
     test2 = not (any(item in CellIden for item in EpiCols))
-    return test1*test2
+    return test1*test2*test3
 
 
     
@@ -126,13 +128,48 @@ def subsample_data(k,name,n=5000):
     return k
 
 def subsample_k(K,n=5000):
-    print (' size = ', len(K))
+    lenK=len(K)
     if len(K)>n:
     #     # random sample -much larger sample
         idx=np.random.choice(len(K), replace = False, size = n)
         # newK = K.iloc[[idx]]
         K=K.iloc[idx]
-        print ('new size = ', len(K))
+    print (f'original size: {lenK}, new size: {len(K)}')
     return K
 
 
+def getAppendDict(k,kInd,uncommonFeatures ):
+    # create an append dict; every sample is without its uncommon features and downsampled 
+    # remove from data
+    appendDict ={}
+    for i in kInd:
+        K=k[i].copy()
+        for f in uncommonFeatures:
+            try:
+                K = K.drop(columns=[f])
+            except:
+                pass
+        # print (K.columns)
+        appendDict[i ] = K
+    return appendDict
+
+
+def createAppendDataset(names,appendDict,n):
+    # del k; k=dict 
+
+    # append data
+    NamesAll = names['NamesAll']+['by_sample']
+    k_append= pd.DataFrame(columns =NamesAll)
+    for i, K in appendDict.items():
+
+        K= subsample_k(K[NamesAll].copy(),n)
+        # K['by_sample'] = int(i)
+        k_append = k_append.append(K, ignore_index=True)
+    by_sampleInd = k_append['by_sample'].copy()
+    return k_append,by_sampleInd
+    
+    # k['1245'] = k_append
+
+    # k['1245']['by_sample'] = by_sampleInd
+    # k_append['by_sample'] = by_sampleInd
+    # print(len(by_sampleInd))
