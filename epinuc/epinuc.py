@@ -3,114 +3,105 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
 import seaborn as sns
+import os
+import sys
+parent_dir = os.getcwd()
+sys.path.append(parent_dir+'/functions/')
 from plot_functions import *
 
-def loadEpinucData(fname,sampleMax=5):
+def loadEpinucData(fname,sampleInd=np.arange(8)):
     dir  = "~/Dropbox/CyTOF_Breast/Kaplan-epinuc/"
     K=pd.read_csv(dir+fname)
-    K = K.drop(np.arange(sampleMax,len(K)),axis =0)
-    K['Subject'] = K['Subject'].astype(int)-130
+    K  = K.copy().T[sampleInd].T
+    K['by_sample'] = K['Subject'].astype(float)-130
     
     # K.set_index( K['Subject'].values)
-    K = K.set_index('Subject')
-    K.index.name='by_sample'
+    K = K.set_index('by_sample')
+
+        # drop sample 3,6
+    K = K.drop([3,6],axis =0)
+    K.loc[4.1]=K.loc[4].copy()
+    K.sort_index(inplace = True)
 
     # [['H3K4me1',	'H3K27me3',	'H3K9me3',	'H3K9ac',	'H3K4me3',	'H3K36me3']]\
     #     = K[['H3K4me1/Nuc',	'H3K27me3/Nuc',	'H3K9me3/Nuc',	'H3K9ac/Nuc',	'H3K4me3/Nuc',	'H3K36me3/Nuc']]
     
-    cols = [ 'Subtype', 'tumor.type','TIMP1','Methylation']
+    cols = [ 'Subtype', 'tumor.type','TIMP1','Methylation','Subject']
     K.drop(columns = cols, inplace=True)
 
-    # drop sample 3
-    K = K.drop(3,axis =0)
+
 
     K = K.rename(columns={'H3K4me1/Nuc':'H3K4me1','H3K27me3/Nuc':'H3K27me3',
                     'H3K9me3/Nuc':'H3K9me3','H3K9ac/Nuc':'H3K9ac',
                     'H3K4me3/Nuc':'H3K4me3','H3K36me3/Nuc':'H3K36me3'}) 
     return K
-    
-def CreateRawMats(K):    
-    # Global levels of the modification - normlized to number of nucleosomes. 
-    # May relate to the mean levels of modification identified in tumor/subcluster
-    LevelsGlobal = pd.DataFrame(index=K.index)
-    LevelsGlobal    [['H3K4me1',	'H3K27me3',	'H3K9me3',	'H3K9ac',	'H3K4me3',	'H3K36me3']]\
-            = K     [['H3K4me1',	'H3K27me3',	'H3K9me3',	'H3K9ac',	'H3K4me3',	'H3K36me3']]
-    # ratio
-    LevelsRelative = pd.DataFrame(index=K.index)
-    LevelsRelative [['H3K9ac/H3K4me1', 'H3K4me3/H3K27me3', 'H3K36me3/H3K9me3']]\
-        = K [['H3K9ac/H3K4me1', 'H3K4me3/H3K27me3', 'H3K36me3/H3K9me3']]
-    
-    LevelsAdditive = pd.DataFrame(index=K.index)
-    LevelsAdditive [['H3K4me1+H3K9ac', 'H3K27me3+H3K4me3', 'H3K9me3+H3K36me3']]\
-        = K [['H3K4me1+H3K9ac', 'H3K27me3+H3K4me3', 'H3K9me3+H3K36me3']]
+def splitDf(df,f):
+    newDf = pd.DataFrame(index=df.index)
 
+    newDf[f] = df [f].copy().astype(float)
+    return newDf
 
-    # print (globalLeveles)
-    return LevelsGlobal.astype(float),LevelsRelative.astype(float), LevelsAdditive.astype(float)
-
-def createCorrMat(k,kEpinuc,settings,title='',figname = '',method ='spearman'):
-    
-    
+def createRawMat(k,kEpinuc,features =[],):
+    k = splitDf(k, features)
+    kEpinuc = splitDf(kEpinuc, features)
     kEpinuc.index= kEpinuc.index.astype(str)+'_epinuc'
     k.index = k.index.astype(str)+'_cytof'
-    rawMat = kEpinuc.append(k)
-    corrMat = rawMat.corr(method =method)
-    corrMatSamples = rawMat.T.corr(method =method)
+    rawMat = kEpinuc.append(k)   
+    return rawMat 
 
-    # plotHeatMap(rawMat,'raw;'+title,settings,'raw_'+figname)
-    rawMat.to_csv(settings[0]+'raw_'+figname+'.csv')
-    plotHeatMap(corrMat,'corrFeatures;'+title,settings,'corrFeatures_'+figname)
-    plotHeatMap(corrMatSamples,'corrSamples;'+title,settings,'corrSamples_'+figname)
-        # plot matrices..
-
-    # return kEpinuc,corrMat,corrMatSamples
 def epinucFeaturesInCytof(k):
-    
+    newDf = pd.DataFrame(index=k.index)
+    try:
+        k = k[k['by_sample']!=11].reset_index(drop=True)
+        newDf['by_sample'] = k['by_sample']
+    except:
+        pass
+    # global
+    f =['H3K4me1',	'H3K27me3',	'H3K9me3',	'H3K9ac',	'H3K4me3',	'H3K36me3']
+    newDf[f] = k[f]
     # relative
-    k['H3K9ac/H3K4me1'] = k['H3K9ac']/k['H3K4me1']
-    k['H3K4me3/H3K27me3'] = k['H3K4me3']/k['H3K27me3']
-    k['H3K36me3/H3K9me3'] = k['H3K36me3']/k['H3K9me3']
+    newDf['H3K9ac/H3K4me1'] = k['H3K9ac']/k['H3K4me1']
+    newDf['H3K4me3/H3K27me3'] = k['H3K4me3']/k['H3K27me3']
+    newDf['H3K36me3/H3K9me3'] = k['H3K36me3']/k['H3K9me3']
     # additive
-    k['H3K4me1+H3K9ac'] = k['H3K4me1']+k['H3K9ac']
-    k['H3K27me3+H3K4me3'] = k['H3K27me3']+k['H3K4me3']
-    k['H3K9me3+H3K36me3'] = k['H3K9me3']+k['H3K36me3']
+    newDf['H3K4me1+H3K9ac'] = k['H3K4me1']+k['H3K9ac']
+    newDf['H3K27me3+H3K4me3'] = k['H3K27me3']+k['H3K4me3']
+    newDf['H3K9me3+H3K36me3'] = k['H3K9me3']+k['H3K36me3']
     
-    features = [
-                'H3K4me1',	'H3K27me3',	'H3K9me3',	'H3K9ac',	'H3K4me3',	'H3K36me3',
-                'H3K9ac/H3K4me1', 'H3K4me3/H3K27me3','H3K36me3/H3K9me3',
-                'H3K4me1+H3K9ac','H3K27me3+H3K4me3','H3K9me3+H3K36me3'
-                ]
-    return k,features
-def averageOverFeatures(k,features):
-    
-    
-    return kBeforeAverage,kAfterAverage
+
+    return newDf
+
 if __name__ == "__main__":
-    import os
+    # import os
     from usefull_functions import *
-    parent_dir = os.getcwd()
+    # parent_dir = os.getcwd()
     dir_data = parent_dir+'/Data/'
-    k =pickle_load('k1245_dict',dir_data )['k']
-    k['by_sample'] = k['by_sample'] .astype(int)
     
-    kEpinuc =  loadEpinucData("EPINUC_BCK.csv",sampleMax=5)
-    # tuple of raw data; 1- Xi,2- Xi/Xj,3- Xi+Xj
-    EpinucData =  CreateRawMats(kEpinuc)
+    
+    kEpinuc =  loadEpinucData("EPINUC_BCK.csv")
+    # # tuple of raw data; 1- Xi,2- Xi/Xj,3- Xi+Xj
+    # EpinucData =  CreateRawMats(kEpinuc)
 
 
-    k,neededFeatures = epinucFeaturesInCytof(k)
+    k_ =pickle_load('kb123_dict',dir_data )['k']
+    
+    # k['by_sample'] = k['by_sample'] .astype(int)
+    k= epinucFeaturesInCytof(k_.copy())
     # normalize k..
 
     # average over epinuc features after normalizing them
     # caculate anothr dataset which is the sum of the average rather than the average of the sum
-    kBeforeAverage = k.groupby(by='by_sample').mean()[neededFeatures]
-    kAfterAverage,_ = epinucFeaturesInCytof(kBeforeAverage[neededFeatures[:6]].copy())
-    kAfterAverage =  CreateRawMats(kAfterAverage)
-    kBeforeAverage =  CreateRawMats(kBeforeAverage)
+    kBeforeAverage = k.groupby(by='by_sample').mean()
+    kAfterAverage = epinucFeaturesInCytof(kBeforeAverage[kBeforeAverage.columns[:6]].copy())
+    # kAfterAverage =  CreateRawMats(kAfterAverage)
+    # kBeforeAverage =  CreateRawMats(kBeforeAverage)
     # calculate the corr mats between mats in the tuples (1--1,2--2,3--3)
     # output for each calculation is the raw merged mat,corrMAT and the transposed cormat
-    createCorrMat(kBeforeAverage,EpinucData)
-    createCorrMat(kAfterAverage,EpinucData)
+    createCorrMat(createRawMat(kBeforeAverage,kEpinuc,
+                  ['H3K4me1','H3K27me3','H3K9me3',	
+                'H3K9ac','H3K4me3','H3K36me3']))
+    
+    createCorrMat(kAfterAverage,kEpinuc,)
     # print(Kepinuc)
     # print(Kepinuc.corr(method ='pearson'))
     print()

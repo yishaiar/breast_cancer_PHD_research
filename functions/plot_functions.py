@@ -39,8 +39,7 @@ def drawUMAP(X_2d, NamesAll,CAll,settings,title = '',Figname = '' ):
             plt.close()
 import matplotlib.cm as cm
 import matplotlib.patches as mpatches
-def drawUMAP_intVals(X_2d, k,ind_cluster,M,settings,title = '',Figname = '' ):
-    
+def drawUMAPbySampleClust(X_2d, k,ind_cluster,M,settings,title = '',Figname = '' ):
     
 
     arr = np.unique(k[ind_cluster][M]).astype(int)
@@ -59,25 +58,18 @@ def drawUMAP_intVals(X_2d, k,ind_cluster,M,settings,title = '',Figname = '' ):
     
     cc = colors[(arr1[(k[ind_cluster][M]-1).astype(int)]).astype(int)]
     plt.figure(figsize=(6, 5))
-    plt.scatter(X_2d[:,0],X_2d[:,1],c = 'white', alpha=0.2,s=2)
+    plt.scatter(X_2d[:,0],X_2d[:,1],c = 'lightgrey', alpha=0.2,s=2)
     plt.scatter(X_2d[ind_cluster][:,0],X_2d[ind_cluster][:,1],c = cc,s=2)
     # plt.legend([['0','1','2','3','4','5'])
     recs = []
     lgd=[]
-    percentage_arr =[]
-    
-    arr = np.unique(k[ind_cluster][M]).astype(float)
     for i in range(0,arr.shape[0]):
         recs.append(mpatches.Rectangle((0,0),1,1,fc=colors[i]))
         percentage = ClustFeaturePercentage(k[ind_cluster],M,arr[i])
         lgd.append(f'{arr[i]} = {np.round(percentage,2)}%')
-        percentage_arr.append([arr[i],percentage]) 
         # lgd.append(f'{arr[i]}')
     # plt.legend(recs,lgd,loc=4)
     plt.legend(recs,lgd,loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=5)
-    
-   
-    
     plt.title(title+ " - "+M)
     
     figname = Figname + M
@@ -90,8 +82,53 @@ def drawUMAP_intVals(X_2d, k,ind_cluster,M,settings,title = '',Figname = '' ):
         plt.show()
     else:
         plt.close()
+def drawUMAPbySample(X_2d,k, sampNum,M,settings,title = '',Figname = '' ):
+    ind_samp = k.by_sample == sampNum
+    # unique by_sample values
+    # arr = np.unique(k[M]).astype(int)
 
-    return percentage_arr
+
+    # max_ = arr.shape[0]
+    # colors1 = np.arange(max_)
+    # colors1 = np.arange(arr.max())
+    # arr1  = np.zeros(arr.max())
+    # ind=0
+    # for i in arr:
+    #     arr1[int(i-1)] = int(colors1[ind])
+    #     ind+=1
+    
+    # colors = cm.rainbow(colors1/(max_-1))
+    # colors = cm.rainbow(colors1/(arr.max()-1))
+
+    
+    # cc = colors[(arr1[(k[ind_cluster][M]-1).astype(int)]).astype(int)]
+    plt.figure(figsize=(6, 5))
+    plt.scatter(X_2d[:,0],X_2d[:,1],c = 'lightgrey', alpha=0.2,s=2)
+    plt.scatter(X_2d[ind_samp][:,0],X_2d[ind_samp][:,1],c = 'blue',s=2)
+    
+    # # plt.legend([['0','1','2','3','4','5'])
+    # recs = []
+    # lgd=[]
+    # for i in range(0,arr.shape[0]):
+    #     recs.append(mpatches.Rectangle((0,0),1,1,fc=colors[i]))
+    #     percentage = ClustFeaturePercentage(k[ind_cluster],M,arr[i])
+    #     lgd.append(f'{arr[i]} = {np.round(percentage,2)}%')
+    #     # lgd.append(f'{arr[i]}')
+    # # plt.legend(recs,lgd,loc=4)
+    # plt.legend(recs,lgd,loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=5)
+    
+    plt.title(f'{title} - {M}= {sampNum}')
+    
+    figname = Figname + M
+
+    dir,show,saveSVG = settings
+    plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
+    if saveSVG:
+        plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
+    if show:
+        plt.show()
+    else:
+        plt.close()
 def saveCsv(dir_plots,name,arr):
     with open(dir_plots+name+'.csv', 'a') as f:
         w= writer(f)
@@ -108,13 +145,22 @@ def ClustFeaturePercentage(cluster,feature,feature_val):
     clust_size = len(cluster)
     sample = cluster[cluster[feature] == feature_val]
     percentage = len(sample)/clust_size*100
-    return percentage            
-def drawDbscan(X,labels,core_samples_mask,settings,title='',figname=''):
+    return percentage     
+def ClustPercentageBySample(k_cluster,M):
+    percentage_arr =[]
+    arr = np.unique(k_cluster[M]).astype(float)
+    for i in range(0,arr.shape[0]):
+        percentage = ClustFeaturePercentage(k_cluster,M,arr[i])
+        percentage_arr.append([arr[i],np.round(percentage,2)]) 
+    return percentage_arr
+def drawDbscan(X,labels,core_samples_mask,settings,title='',figname='',figsize=(6, 5)):
     # Black removed and is used for noise instead.
-    plt.figure(figsize=(6, 5))
+    plt.figure(figsize = figsize)
     unique_labels = set(labels)
-    colors = [plt.cm.Spectral(each)
-              for each in np.linspace(0, 1, len(unique_labels))]
+    colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, len(unique_labels))]
+
+    # colors = [plt.cm.Spectral(each) 
+    #           for each in np.linspace(0, 1, len(unique_labels))]
     for k, col in zip(unique_labels, colors):
         if k == -1:
             # Black used for noise.
@@ -146,7 +192,7 @@ def drawDbscan(X,labels,core_samples_mask,settings,title='',figname=''):
     else:
         plt.close()
     
-    
+    return colors
               
             
 
@@ -181,23 +227,40 @@ def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname
         else:
             plt.close()
             
-        
+def scatter(k,f1,f2,name,figname,settings):
+    plt.figure(figsize = (15,15))
+
+    plt.scatter(k[f1],k[f2],marker = '.')
+    plt.xlabel(f1)
+    plt.ylabel(f2)
+
+    plt.title(f'{f1} vs {f2}: {name}')
+    figname = f'{figname}scatter_{f1}_{f2}'
+    dir,show,saveSVG = settings
+    plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
+    if saveSVG:
+        plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
+    if show:
+        plt.show()
+    else:
+        plt.close()
      
 
-def HeatMap(k_clust,names,settings,clustFeature='Clust',title = '',figname = '' ):
+def HeatMap(k_clust,names,settings,clustFeature='Clust',
+            title = '',figname = '' ):
     dir,show,saveSVG = settings
     # k_clust = K[K.Clust!=-1]
     Mat=k_clust.groupby(by=clustFeature).mean()[names]
     Mat = Mat[names]
     plotHeatMap(Mat,title,settings,figname)
-def plotHeatMap(Mat,title,settings,figname):    
+def plotHeatMap(Mat,title,settings,figname,figsize = (10, 10)):    
     amin=Mat.min().min()
     amax=Mat.max().max()
 
     # vmin,vmax - defines the  colormap dynamic range
     g=sns.clustermap(Mat.T,cmap=plt.cm.seismic,vmin=amin,vmax=amax,
                     # figsize=(10,20), annot_kws={"size":8}, center=0,
-                    figsize=(6, 10), annot_kws={"size":8}, center=0,
+                    figsize=figsize, annot_kws={"size":8}, center=0,
                     annot=True, linewidths=1,linecolor='k',)
     g.ax_col_dendrogram.set_title(title) 
     
@@ -213,7 +276,7 @@ def plotHeatMap(Mat,title,settings,figname):
    
     
     
-def plotClusters(K,X_2d,labels,NamesAll,settings,title = '',figname = '' ):
+def plotClusters(K,X_2d,labels,colors,NamesAll,settings,title = '',figname = '' ):
     # bool if label frum cluster -1 (smallest cluster - maybe outlyer)
     m=labels!=-1
     # [NamesAll] - ALLOW TO CHANGE LIST OF FEATURES IN UMAP
@@ -229,9 +292,9 @@ def plotClusters(K,X_2d,labels,NamesAll,settings,title = '',figname = '' ):
     with rc_context({'figure.figsize': (6, 5)}):
         sc.pl.umap(K_ann, color='clust', add_outline=True, legend_loc='on data',
                 legend_fontsize=16, legend_fontoutline=4,frameon=True,
-                title=title, palette=['r','orange','yellow','b'],show=False,projection='2d',)
+                title=title,show=False,projection='2d',palette=colors)
     
-    
+    # palette=['r','orange','yellow','b']
     dir,show,saveSVG = settings
     plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
     if saveSVG:
@@ -370,3 +433,24 @@ def plotSplit(K,i,min_x,min_y,settings,Figname,log = True):
     # plt.title(f'K{i} ; limit = {np.round(min_x[i],4)}')
     # sns.kdeplot(K['CD45'])
     # plt.scatter(min_x[i],min_y[i])
+
+    
+
+def createCorrMat(rawMat,method ='spearman',
+                  settings =None ,title='',figname = ''):
+    
+
+
+    corrMatFeatures = rawMat.corr(method =method)
+    corrMatSamples = rawMat.T.corr(method =method)
+
+    
+    if settings != None:
+        # plotHeatMap(rawMat,'raw;'+title,settings,'raw_'+figname)
+        rawMat.to_csv(settings[0]+'raw_corrmat_'+figname+'.csv')
+        plotHeatMap(corrMatFeatures,'corrFeatures;'+title,settings,'corrFeatures_'+figname,
+                    figsize = (20, 20))
+        plotHeatMap(corrMatSamples,'corrSamples;'+title,settings,'corrSamples_'+figname)
+        # plot matrices..
+
+    # return kEpinuc,corrMatFeatures,corrMatSamples
