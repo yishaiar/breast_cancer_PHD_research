@@ -159,12 +159,15 @@ def createAppendDataset(names,appendDict,n):
 
     # append data
     NamesAll = names['NamesAll']+['by_sample']
+    # k_append1= pd.DataFrame(columns =NamesAll)
     k_append= pd.DataFrame(columns =NamesAll)
+
     for i, K in appendDict.items():
 
         K= subsample_k(K[NamesAll].copy(),n)
         # K['by_sample'] = int(i)
-        k_append = k_append.append(K, ignore_index=True)
+        # k_append1 = k_append1.append(K.copy(), ignore_index=True)
+        k_append = pd.concat([k_append,K.copy()], ignore_index=True,axis=0,)
     by_sampleInd = k_append['by_sample'].copy()
     return k_append,by_sampleInd
     
