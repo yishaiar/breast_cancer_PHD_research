@@ -138,9 +138,10 @@ def subsample_k(K,n=5000):
     return K
 
 
-def getAppendDict(k,kInd,uncommonFeatures ):
+def createAppendDataset(k,namesAll,kInd,uncommonFeatures ):
     # create an append dict; every sample is without its uncommon features and downsampled 
     # remove from data
+    
     appendDict ={}
     for i in kInd:
         K=k[i].copy()
@@ -151,57 +152,53 @@ def getAppendDict(k,kInd,uncommonFeatures ):
                 pass
         # print (K.columns)
         appendDict[i ] = K
-    return appendDict
 
-
-def createAppendDataset(names,appendDict,n):
-    # del k; k=dict 
-
+    names  = removeFeatures(namesAll.copy(),uncommonFeatures)
     # append data
-    NamesAll = names['NamesAll']+['by_sample']
+    names['NamesAll'] += ['by_sample','Ind']
     # k_append1= pd.DataFrame(columns =NamesAll)
-    k_append= pd.DataFrame(columns =NamesAll)
+    k_append= pd.DataFrame(columns = names['NamesAll'])
 
     for i, K in appendDict.items():
 
-        K= subsample_k(K[NamesAll].copy(),n)
+        # K= subsample_k(K[names['NamesAll']].copy(),n)
         # K['by_sample'] = int(i)
         # k_append1 = k_append1.append(K.copy(), ignore_index=True)
         k_append = pd.concat([k_append,K.copy()], ignore_index=True,axis=0,)
-    by_sampleInd = k_append['by_sample'].copy()
-    return k_append,by_sampleInd
-    
-    # k['1245'] = k_append
+        
+    names['by_sample'] = k_append['by_sample'].copy()
+    names['Ind'] = k_append['Ind'].copy()
+    return k_append,names
 
-    # k['1245']['by_sample'] = by_sampleInd
-    # k_append['by_sample'] = by_sampleInd
-    # print(len(by_sampleInd))
 
-def getValsCsv(dir_data,vars,lensize = 10,fname = 'params.csv' ): 
+
+
+def getValsCsv(dir_data,vars,lensize = 10,fname = '_params.csv' ): 
+    newvars = [var + (lensize-len(var))*' ' for var in vars]
+
     df = pd.read_csv(dir_data+fname, sep =',',comment='#').astype(str)
     for col in df.columns:
         df[col] = [var + (lensize-len(var))*' ' for var in df[col]]
-    newvars = []   
-    for var in vars:
-        newvars.append(var + (lensize-len(var))*' ')
+    
+ 
     for val, field in zip(newvars,['var','alg','samp']):
         df = df[df[field]==val].copy().drop(field,axis = 1)
     val1,val2 = df.values.tolist()[0]
     # print(val1,val2 )
     return float(val1),int(float(val2) )
 import json
-def getJ(j,group_ind):
+def getJ(j,group_ind,address):
     # if thers an external program runnig script (saving a json file) - take it
     # otherwise take the input j
     fname = 'j.json'
     try:   
         with open(fname, 'r') as f: 
-            j,group_ind =  json.load(f)
+            j,group_ind,address =  json.load(f)
         os.remove(fname)
     except:
         pass
-    print(f'current j = {j},group_ind = {group_ind}')
-    return j,group_ind  
+    print(f'current j = {j},group_ind = {group_ind}, add = {address}')
+    return j,group_ind,address  
 # fname = 'j.json'
 # val =['1','2']
 # with open(fname, 'w') as f:

@@ -100,15 +100,18 @@ def LinearFit(data1,data2,data3):
     
     # data3 is not with the same distribution as data1,data2 but with same errors as data 2
     # i.e we transfer it to be with same errors as data1 to be able to compare to each other
-    mu1 = np.mean(data1)
-    sigma1 = np.std(data1)
-    mu2 = np.mean(data2)
-    sigma2 = np.std(data2)
+    mu1,sigma1 = norm.fit(data1)
+    mu2,sigma2 = norm.fit(data2)
+
+    # mu1 = np.mean(data1)
+    # sigma1 = np.std(data1)
+    # mu2 = np.mean(data2)
+    # sigma2 = np.std(data2)
 
     data3_into_data1 = (data3/sigma2-mu2/sigma2 + mu1/sigma1)*sigma1
     return data3_into_data1
 
-def fit(data1,data2,data3):
+def MixedFit(data1,data2,data3):
 
     # we assume the distribution of data1,data2 is the same  
     # changes are due to machine error (they are anchor to each other) 
@@ -133,7 +136,14 @@ def fit(data1,data2,data3):
     data3_into_data1[ind2] = qqFit(data1,data2,data3[ind2])
     
 
-    return data3_into_data1, qqFit(data1,data2,data3[ind2])
+    return data3_into_data1 
+
+def fitDF(fit_into,fit_from,df_to_fit,func):
+    fitted_df = pd.DataFrame(columns=df_to_fit.columns)
+    for col in df_to_fit.columns:
+        fitted_df[col] = func(fit_into[col],fit_from[col],df_to_fit[col])
+    return fitted_df
+# qqFit(data1,data2,data3[ind2])
 
 
 

@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import cm
 import seaborn as sns
 import numpy as np
 import scanpy as sc
@@ -82,8 +81,17 @@ def drawUMAPbySampleClust(X_2d, k,ind_cluster,M,settings,title = '',Figname = ''
         plt.show()
     else:
         plt.close()
-def drawUMAPbySample(X_2d,k, sampNum,M,settings,title = '',Figname = '' ):
-    ind_samp = k.by_sample == sampNum
+def drawUMAPbySample(X_2d,k, ind,labels,settings,title = '',Figname = '' ):
+    # filter labels of data which is actually in the batch
+    # todo..
+    # labels = labels[1,:]
+    # +1 due to existing clust value:-1
+    colors = cm.rainbow((labels+1)/np.max(labels+1))
+    clusters = []
+    uniq = np.unique(labels)#uniq values(clusters in sample)
+    for u in uniq:
+        cluster = [i for i,j in enumerate(labels) if j==u ]
+        clusters.append(cluster)
     # unique by_sample values
     # arr = np.unique(k[M]).astype(int)
 
@@ -98,13 +106,15 @@ def drawUMAPbySample(X_2d,k, sampNum,M,settings,title = '',Figname = '' ):
     #     ind+=1
     
     # colors = cm.rainbow(colors1/(max_-1))
+    # colors1 = np.arange(arr.max())
     # colors = cm.rainbow(colors1/(arr.max()-1))
 
     
     # cc = colors[(arr1[(k[ind_cluster][M]-1).astype(int)]).astype(int)]
     plt.figure(figsize=(6, 5))
     plt.scatter(X_2d[:,0],X_2d[:,1],c = 'lightgrey', alpha=0.2,s=2)
-    plt.scatter(X_2d[ind_samp][:,0],X_2d[ind_samp][:,1],c = 'blue',s=2)
+    for u,cluster in zip(uniq,clusters):
+        plt.scatter(X_2d[ind][cluster][:,0],X_2d[ind][cluster][:,1],c = colors[cluster],s=2,label = u)
     
     # # plt.legend([['0','1','2','3','4','5'])
     # recs = []
@@ -117,9 +127,11 @@ def drawUMAPbySample(X_2d,k, sampNum,M,settings,title = '',Figname = '' ):
     # # plt.legend(recs,lgd,loc=4)
     # plt.legend(recs,lgd,loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=5)
     
-    plt.title(f'{title} - {M}= {sampNum}')
+    plt.title(title)
+    plt.legend(fontsize=15, title_fontsize='40',markerscale = 3.5,ncol=5,
+        loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True,) #
     
-    figname = Figname + M
+    figname = Figname
 
     dir,show,saveSVG = settings
     plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
@@ -281,7 +293,7 @@ def plotClusters(K,X_2d,labels,colors,NamesAll,settings,title = '',figname = '' 
     m=labels!=-1
     # [NamesAll] - ALLOW TO CHANGE LIST OF FEATURES IN UMAP
     K_ann=anndata.AnnData(K[m][NamesAll],dtype=np.float32)
-    K['Clust']=labels
+    # K['Clust']=labels
     # # compute neighborhood graph used in umap - Added to K_ann
     sc.pp.neighbors(K_ann)
     # # embed the neighborhood graph using umap - Added to K_ann
@@ -292,7 +304,7 @@ def plotClusters(K,X_2d,labels,colors,NamesAll,settings,title = '',figname = '' 
     with rc_context({'figure.figsize': (6, 5)}):
         sc.pl.umap(K_ann, color='clust', add_outline=True, legend_loc='on data',
                 legend_fontsize=16, legend_fontoutline=4,frameon=True,
-                title=title,show=False,projection='2d',palette=colors)
+                title=title,show=False,projection='2d',)#palette=colors
     
     # palette=['r','orange','yellow','b']
     dir,show,saveSVG = settings
@@ -324,51 +336,51 @@ def getList(valA,itersA):
   A = np.insert(A,0,valA)
   return A
 
-def umap_params(k,names ,dir_plots,
-                valA, valB,
-                itersA = 3, itersB = 3,
-                j = 'testing'
-                ):
+# def umap_params(k,names ,dir_plots,
+#                 valA, valB,
+#                 itersA = 3, itersB = 3,
+#                 j = 'testing'
+#                 ):
     
-  iters = list(itertools.product(getList(valA,itersA), getList(valB,itersB)))
-  for i, [min_dist , n_neighbors] in enumerate(iters):      
+#   iters = list(itertools.product(getList(valA,itersA), getList(valB,itersB)))
+#   for i, [min_dist , n_neighbors] in enumerate(iters):      
       
-    CAll=pd.concat([k.copy()])
-    t= f'min_dist = {min_dist}, n_neighbors = {n_neighbors}'
-    X_2d = calculate_umap(CAll[names],int(n_neighbors), min_dist)
-    draw_umap (X_2d,CAll['H4'],dir_plots,
-               show = True,
-              title = t,
-              figname = 'Tumor'+j+'_umap_CellIdentity')
+#     CAll=pd.concat([k.copy()])
+#     t= f'min_dist = {min_dist}, n_neighbors = {n_neighbors}'
+#     X_2d = calculate_umap(CAll[names],int(n_neighbors), min_dist)
+#     draw_umap (X_2d,CAll['H4'],dir_plots,
+#                show = True,
+#               title = t,
+#               figname = 'Tumor'+j+'_umap_CellIdentity')
     
-    print(f'iteration:{i+1}/{len(iters)}, ' + t)
+#     print(f'iteration:{i+1}/{len(iters)}, ' + t)
       
         
 
 
-def dbscan_params(X_2d,dir_plots,
-                  valA, valB,
-                  itersA = 3, itersB = 3,
-                  j = 'testing'
-                  ):
-    iters = list(itertools.product(getList(valA,itersA), getList(valB,itersB)))
-    for i, [eps , min_samples] in enumerate(iters): 
+# def dbscan_params(X_2d,dir_plots,
+#                   valA, valB,
+#                   itersA = 3, itersB = 3,
+#                   j = 'testing'
+#                   ):
+#     iters = list(itertools.product(getList(valA,itersA), getList(valB,itersB)))
+#     for i, [eps , min_samples] in enumerate(iters): 
         
-      x_2d = X_2d.copy()
-      t= f'eps = {eps}, min_samples = {min_samples}'
+#       x_2d = X_2d.copy()
+#       t= f'eps = {eps}, min_samples = {min_samples}'
                   
       
-      try:
-        print(f'iteration:{i+1}/{len(iters)}, ' + t)
-        X,labels,core_samples_mask = calculate_dbscan(data = x_2d,eps=eps,min_samples=int(min_samples))
-        plot_dbscan(X,labels,core_samples_mask,dir_plots,show = True,
-              title=t,
-              figname='Tumor'+j+'_dbscan_CellIdentity'
-              )
-        print('\n')
-      except: 
-          print("error:")
-      print(f'iteration:{i+1}/{len(iters)}, ' + t)
+#       try:
+#         print(f'iteration:{i+1}/{len(iters)}, ' + t)
+#         X,labels,core_samples_mask = calculate_dbscan(data = x_2d,eps=eps,min_samples=int(min_samples))
+#         plot_dbscan(X,labels,core_samples_mask,dir_plots,show = True,
+#               title=t,
+#               figname='Tumor'+j+'_dbscan_CellIdentity'
+#               )
+#         print('\n')
+#       except: 
+#           print("error:")
+#       print(f'iteration:{i+1}/{len(iters)}, ' + t)
         
 
    
