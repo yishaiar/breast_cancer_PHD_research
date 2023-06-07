@@ -114,7 +114,7 @@ def drawUMAPbySample(X_2d,k, ind,labels,settings,title = '',Figname = '' ):
     plt.figure(figsize=(6, 5))
     plt.scatter(X_2d[:,0],X_2d[:,1],c = 'lightgrey', alpha=0.2,s=2)
     for u,cluster in zip(uniq,clusters):
-        plt.scatter(X_2d[ind][cluster][:,0],X_2d[ind][cluster][:,1],c = colors[cluster],s=2,label = u)
+        plt.scatter(X_2d[ind][cluster][:,0],X_2d[ind][cluster][:,1],c = colors[cluster],s=2,label = u,)#alpha=0.5
     
     # # plt.legend([['0','1','2','3','4','5'])
     # recs = []
@@ -209,13 +209,13 @@ def drawDbscan(X,labels,core_samples_mask,settings,title='',figname='',figsize=(
             
 
     
-def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname = '',numSubplots = 3 ):
+def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname = '',numSubplots = 4 ):
     
          
     colors = cm.rainbow(np.linspace(0, 1, len (k.keys())))
     
     for M in NamesAll: 
-        fig, ax = plt.subplots(1,numSubplots,figsize=(int(5*numSubplots),4))
+        fig, ax = plt.subplots(1,numSubplots,figsize=(int(4*numSubplots),4))
         for [i, K],color,fig_num in zip(k.items(),colors,figures):
             fig_num -= 1
             

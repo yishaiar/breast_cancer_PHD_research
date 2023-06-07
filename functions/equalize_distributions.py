@@ -139,8 +139,9 @@ def MixedFit(data1,data2,data3):
     return data3_into_data1 
 
 def fitDF(fit_into,fit_from,df_to_fit,func):
-    fitted_df = pd.DataFrame(columns=df_to_fit.columns)
-    for col in df_to_fit.columns:
+    cols = [col for col in fit_into.columns if col in fit_from.columns]
+    fitted_df = pd.DataFrame(columns=cols)
+    for col in cols:
         fitted_df[col] = func(fit_into[col],fit_from[col],df_to_fit[col])
     return fitted_df
 # qqFit(data1,data2,data3[ind2])
