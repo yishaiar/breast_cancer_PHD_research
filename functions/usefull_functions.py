@@ -127,14 +127,23 @@ def subsample_data(k,name,n=5000):
             print ('           ',name+i+ ' new size = ', len(k[i]))
     return k
 
-def subsample_k(K,n=5000):
+def subsample_k(K,kInd,subsample,dir_data,n=5000):
     lenK=len(K)
-    if len(K)>n:
+    if len(K)<=n:
+       print (f'original size: {lenK}, file unchanged')
+
+    else:# len(K)>n:
+        if subsample:
     #     # random sample -much larger sample
-        idx=np.random.choice(len(K), replace = False, size = n)
-        # newK = K.iloc[[idx]]
+            idx=np.random.choice(len(K), replace = False, size = n)
+            # newK = K.iloc[[idx]]
+            pickle_dump(f"{kInd}_subsample_indexes", idx,dir_data)
+            
+            print (f'original size: {lenK}, new size: {idx.shape[0]} indexes saved to file')
+        else: #load from file
+           idx = pickle_load(f"{kInd}_subsample_indexes",dir_data)
+           print (f'original size: {lenK}, new size: {idx.shape[0]} indexes loaded from file')
         K=K.iloc[idx]
-    print (f'original size: {lenK}, new size: {len(K)}')
     return K
 
 
@@ -168,6 +177,16 @@ def createAppendDataset(k,namesAll,kInd,uncommonFeatures ):
         
     names['by_sample'] = k_append['by_sample'].copy()
     names['Ind'] = k_append['Ind'].copy()
+
+    # unitest
+    arr=[]
+    for i in kInd:
+        check = k_append.loc[k_append[k_append['by_sample']==float(i)].index[0]].isna()
+        check = list(check[check].index)
+        arr += [col for col in check if col not in arr]
+       
+    if len (arr)>0:
+        print(f'fields to remove from df: {arr}')
     return k_append,names
 
 

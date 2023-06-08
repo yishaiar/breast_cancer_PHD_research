@@ -125,8 +125,9 @@ def MixedFit(data1,data2,data3):
     data2 = np.array(data2)
     data3 = np.array(data3)
 
-    data2_quantiles = np.percentile(data2, np.linspace(0, 100, len(data2)))
-    ind = (data3>np.max(data2_quantiles))*1 +(data3<np.min(data2_quantiles))*1
+    # data2_quantiles = np.percentile(data2, np.linspace(0, 100, len(data2)))
+    # ind = (data3>np.max(data2_quantiles))*1 +(data3<np.min(data2_quantiles))*1
+    ind = (data3>np.max(data2))*1 +(data3<np.min(data2))*1
     ind1 =[i for i in np.arange(data3.shape[0]) if ind[i]==1]
     ind2 =[i for i in np.arange(data3.shape[0]) if ind[i]==0]
     
@@ -140,10 +141,14 @@ def MixedFit(data1,data2,data3):
 
 def fitDF(fit_into,fit_from,df_to_fit,func):
     cols = [col for col in fit_into.columns if col in fit_from.columns]
+    dropped_cols = [col for col in df_to_fit.columns if col not in cols]
+    if len(dropped_cols)>0:
+        print (f'cols dropped due to fitting: {dropped_cols} ')
+
     fitted_df = pd.DataFrame(columns=cols)
     for col in cols:
         fitted_df[col] = func(fit_into[col],fit_from[col],df_to_fit[col])
-    return fitted_df
+    return fitted_df,dropped_cols
 # qqFit(data1,data2,data3[ind2])
 
 

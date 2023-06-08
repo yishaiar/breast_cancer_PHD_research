@@ -211,13 +211,16 @@ def drawDbscan(X,labels,core_samples_mask,settings,title='',figname='',figsize=(
     
 def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname = '',numSubplots = 4 ):
     
-         
     colors = cm.rainbow(np.linspace(0, 1, len (k.keys())))
-    
+    import random   
+    random.shuffle(colors)
     for M in NamesAll: 
-        fig, ax = plt.subplots(1,numSubplots,figsize=(int(4*numSubplots),4))
+        _, ax = plt.subplots(1,numSubplots,figsize=(int(4*numSubplots),4))
+        # x1 =np.inf;x2 =-np.inf;y1 =np.inf;y2 =-np.inf;
         for [i, K],color,fig_num in zip(k.items(),colors,figures):
+            # i = list(k.keys())[-2];K=k[i];color = colors[-2];fig_num = figures[-2]
             fig_num -= 1
+            
             
             # sns.kdeplot(K[M],c=c,label='Tumor ' + i)
             try: #if K doesnt contain the feature pass..
@@ -225,9 +228,19 @@ def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname
               # sns.kdeplot(K2[M],c='g',label='Tumor 2')
               ax[fig_num].title.set_text(title)
               ax[fig_num].legend()
-              
+            #   ------------------------
+            #   ystart, yend = ax[fig_num].get_ylim()
+            #   xstart, xend = ax[fig_num].get_xlim() 
+            #   x1 = xstart if xstart<x1 else x1
+            #   x2 = xend if xend>x2 else x2
+            #   y1 = ystart if ystart<y1 else y1
+            #   y2 = yend if yend>y2 else y2
+            #  ------------------------- 
             except:
               pass
+        # for fig_num in range(numSubplots):
+        #     ax[fig_num].set_xlim(x1,x2)
+        #     ax[fig_num].set_ylim(y1,y2)
         figname = Figname + M
         
         dir,show,saveSVG = settings
@@ -238,6 +251,7 @@ def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname
             plt.show()
         else:
             plt.close()
+        # break
             
 def scatter(k,f1,f2,name,figname,settings):
     plt.figure(figsize = (15,15))
@@ -420,9 +434,17 @@ def MeanDist(data1,data2,Markers,settings,title='',figname = '',font_size = 10):
 
 
 def plotSplit(K,i,min_x,min_y,settings,Figname,log = True):
-    plt.figure(figsize=(6, 5))
+     # plt.figure(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(10, 5))
+    sns.kdeplot(K,ax = ax)
+    start, end = ax.get_xlim()
+    ax.xaxis.set_ticks(np.arange(int(np.floor(start)), int(np.ceil(end)), 0.4))
+    # plt.xticks(np.arange(int(np.floor(K.min())),int(np.ceil(K.max())),0.2))
+    
+
     plt.title(f'K{i} ; limit = {np.round(min_x,4)}')
-    sns.kdeplot(K['CD45'])
+
+    
     plt.scatter(min_x,min_y)
     if log:
         plt.yscale('log')
