@@ -442,7 +442,9 @@ def plotSplit(K,i,min_x,min_y,settings,Figname,log = True):
     # plt.xticks(np.arange(int(np.floor(K.min())),int(np.ceil(K.max())),0.2))
     
 
-    plt.title(f'K{i} ; limit = {np.round(min_x,4)}')
+    percentage = np.round(len(K[K<min_x])/len(K),2)*100
+    print(f'k{i} negative percentage: {percentage}%')
+    plt.title(f'K{i} ; limit = {np.round(min_x,4)}; neg percentage = {percentage}%')
 
     
     plt.scatter(min_x,min_y)

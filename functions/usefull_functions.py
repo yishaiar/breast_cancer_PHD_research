@@ -226,3 +226,18 @@ def getJ(j,group_ind,address):
 
 
 # 
+def load_adjusted_batch(j,k,dir_indexes):
+    # k = k[j].copy()
+    Ind, by_sample= pickle_load(f"{j}_adjusted_subsample_indexes",dir_indexes)
+    uniq = [int(i) if i != 4.1 else float(i)  for i in np.unique(by_sample)]
+    # appendDict ={}
+    
+    k_append= pd.DataFrame()
+    for samp in uniq:
+        K=k[k['by_sample']==samp].copy()
+        samp_idx = Ind[by_sample ==samp]
+        
+        kInd = [True if (i in samp_idx) else False for i in np.asarray(K.Ind)]
+        K = K[kInd]
+        k_append = pd.concat([k_append,K.copy()], ignore_index=True,axis=0,)
+    return k_append

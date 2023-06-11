@@ -1,11 +1,18 @@
 samp,var,alg,val1,val2
 
 b234,iden,umap,0.1,10
-b234,iden,db,0.1,200
+b234,iden,db,0.1,150
 b234,epi,umap,0.1,10
 b234,epi,db,0.1,160
 b234,all,umap,0.1,10
-b234,all,db,0.1,160
+b234,all,db,0.1,200
+
+b23ad,iden,umap,0.1,10
+b23ad,iden,db,0.1,200
+b23ad,epi,umap,0.1,10
+b23ad,epi,db,0.1,160
+b23ad,all,umap,0.1,10
+b23ad,all,db,0.1,160
 
 b23,iden,umap,0.1,10
 b23,iden,db,0.1,200
@@ -15,12 +22,13 @@ b23,all,umap,0.1,10
 b23,all,db,0.1,160
 
 b4,iden,umap,0.1,10
-b4,iden,db,0.2,70
+b4,iden,db,0.12,180
 b4,epi,umap,0.1,10
-b4,epi,db,0.2,70
+b4,epi,db,0.17,270
 b4,all,umap,0.1,10
-b4,all,db,0.2,70
+b4,all,db,0.13,120
 
+#need calibrate
 b3,iden,umap,0.1,10
 b3,iden,db,0.2,70
 b3,epi,umap,0.1,10
@@ -28,6 +36,7 @@ b3,epi,db,0.2,70
 b3,all,umap,0.1,10
 b3,all,db,0.2,70
 
+#need calibrate
 b2,iden,umap,0.1,10
 b2,iden,db,0.2,70
 b2,epi,umap,0.1,10
@@ -36,74 +45,74 @@ b2,all,umap,0.1,10
 b2,all,db,0.2,70
 
 14.2,iden,umap,0.1,10
-14.2,iden,db,0.11,70
+14.2,iden,db,0.16,170
 14.2,epi,umap,0.1,10
-14.2,epi,db,0.17,70
+14.2,epi,db,0.13,30
 14.2,all,umap,0.1,10
-14.2,all,db,0.11,90
+14.2,all,db,0.17,90
 
 15,iden,umap,0.1,10
-15,iden,db,0.11,70
+15,iden,db,0.17,60
 15,epi,umap,0.1,10
-15,epi,db,0.17,70
+15,epi,db,0.17,55
 15,all,umap,0.1,10
-15,all,db,0.11,90
+15,all,db,0.17,150
 
 14,iden,umap,0.1,10
-14,iden,db,0.11,70
+14,iden,db, 0.15,110
 14,epi,umap,0.1,10
-14,epi,db,0.17,70
+14,epi,db,0.17,60
 14,all,umap,0.1,10
-14,all,db,0.11,90
+14,all,db,0.17,60
 
 13,iden,umap,0.1,10
-13,iden,db,0.11,70
+13,iden,db,0.18,110
 13,epi,umap,0.1,10
-13,epi,db,0.17,70
+13,epi,db,0.17,50
 13,all,umap,0.1,10
-13,all,db,0.11,90
+13,all,db,0.17,130
 
 7.1,iden,umap,0.1,10
-7.1,iden,db,0.11,70
+7.1,iden,db,0.16,95
 7.1,epi,umap,0.1,10
-7.1,epi,db,0.17,70
+7.1,epi,db,0.17,75
 7.1,all,umap,0.1,10
-7.1,all,db,0.11,90
+7.1,all,db,0.17,130
 
 11,iden,umap,0.1,10
 11,iden,db,0.11,70
 11,epi,umap,0.1,10
 11,epi,db,0.17,70
 11,all,umap,0.1,10
-11,all,db,0.11,90
+11,all,db,0.2,170
 
 8,iden,umap,0.1,10
-8,iden,db,0.15,80
+8,iden,db,0.18,120
 8,epi,umap,0.1,10
-8,epi,db,0.2,70
+8,epi,db,0.18,40
 8,all,umap,0.1,10
-8,all,db,0.13,70
+8,all,db,0.18,100
 
 7,iden,umap,0.1,10
-7,iden,db,0.14,80
+7,iden,db,0.16,85
 7,epi,umap,0.1,10
-7,epi,db,0.17,70
+7,epi,db,0.17,75
 7,all,umap,0.1,10
-7,all,db,0.13,90
+7,all,db,0.17,105
 
 4.1,iden,umap,0.1,10
-4.1,iden,db,0.16,50
+4.1,iden,db,0.19,70
 4.1,epi,umap,0.1,10
-4.1,epi,db,0.16,75
+4.1,epi,db,0.18,85
 4.1,all,umap,0.1,10
-4.1,all,db,0.15,75
+4.1,all,db,0.16,65
 
 5,iden,umap,0.1,10
-5,iden,db,0.14,70
+5,iden,db,0.18,90
 5,epi,umap,0.1,10
-5,epi,db,0.14,60
+5,epi,db,0.15,50
 5,all,umap,0.1,10
-5,all,db,0.12,70
+5,all,db,0.12,50
 
 4,iden,umap,0.1,10
 4,iden,db,0.2,70
@@ -112,6 +121,7 @@ b2,all,db,0.2,70
 4,all,umap,0.1,10
 4,all,db, 0.16,50
 
+#need calibrate
 2,iden,umap,0.1,10
 2,iden,db,0.15,90
 2,epi,umap,0.1,10
@@ -119,6 +129,7 @@ b2,all,db,0.2,70
 2,all,umap,0.1,10
 2,all,db,0.2,90
 
+#need calibrate
 1,iden,umap,0.1,10
 1,iden,db,0.2,40
 1,epi,umap,0.1,10
