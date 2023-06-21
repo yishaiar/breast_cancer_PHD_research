@@ -81,12 +81,18 @@ def drawUMAPbySampleClust(X_2d, k,ind_cluster,M,settings,title = '',Figname = ''
         plt.show()
     else:
         plt.close()
-def drawUMAPbySample(X_2d,k, ind,labels,settings,title = '',Figname = '' ):
+def drawUMAPbySample(X_2d,k, ind,labels,settings,colors = None,title = '',Figname = '' ):
     # filter labels of data which is actually in the batch
     # todo..
     # labels = labels[1,:]
     # +1 due to existing clust value:-1
-    colors = cm.rainbow((labels+1)/np.max(labels+1))
+    if colors==None:
+        cc = cm.rainbow((labels+1)/np.max(labels+1))
+    else:
+        # add black for -1 cluster
+        colors = np.vstack(([0,0,0,1],np.asarray(colors)))
+        cc = np.asarray([colors[l] for l in labels+1])
+
     clusters = []
     uniq = np.unique(labels)#uniq values(clusters in sample)
     for u in uniq:
@@ -114,7 +120,7 @@ def drawUMAPbySample(X_2d,k, ind,labels,settings,title = '',Figname = '' ):
     plt.figure(figsize=(6, 5))
     plt.scatter(X_2d[:,0],X_2d[:,1],c = 'lightgrey', alpha=0.2,s=2)
     for u,cluster in zip(uniq,clusters):
-        plt.scatter(X_2d[ind][cluster][:,0],X_2d[ind][cluster][:,1],c = colors[cluster],s=2,label = u,)#alpha=0.5
+        plt.scatter(X_2d[ind][cluster][:,0],X_2d[ind][cluster][:,1],c = cc[cluster],s=2,label = u,)#alpha=0.5
     
     # # plt.legend([['0','1','2','3','4','5'])
     # recs = []
@@ -304,21 +310,21 @@ def plotHeatMap(Mat,title,settings,figname,figsize = (10, 10)):
     
 def plotClusters(K,X_2d,labels,colors,NamesAll,settings,title = '',figname = '' ):
     # bool if label frum cluster -1 (smallest cluster - maybe outlyer)
-    m=labels!=-1
+    ind=labels!=-1
     # [NamesAll] - ALLOW TO CHANGE LIST OF FEATURES IN UMAP
-    K_ann=anndata.AnnData(K[m][NamesAll],dtype=np.float32)
+    K_ann=anndata.AnnData(K[ind][NamesAll].copy(),dtype=np.float32)
     # K['Clust']=labels
     # # compute neighborhood graph used in umap - Added to K_ann
     sc.pp.neighbors(K_ann)
     # # embed the neighborhood graph using umap - Added to K_ann
     sc.tl.umap(K_ann,n_components=3)
-    K_ann.obsm['X_umap']=X_2d[m]
-    K_ann.obs['clust']=K[m].Clust.astype('category').values
+    K_ann.obsm['X_umap']=X_2d[ind]
+    K_ann.obs['clust']=K[ind].Clust.astype('category').values
     
     with rc_context({'figure.figsize': (6, 5)}):
         sc.pl.umap(K_ann, color='clust', add_outline=True, legend_loc='on data',
                 legend_fontsize=16, legend_fontoutline=4,frameon=True,
-                title=title,show=False,projection='2d',)#palette=colors
+                title=title,show=False,projection='2d',palette=colors)#
     
     # palette=['r','orange','yellow','b']
     dir,show,saveSVG = settings
@@ -433,7 +439,7 @@ def MeanDist(data1,data2,Markers,settings,title='',figname = '',font_size = 10):
         plt.close()
 
 
-def plotSplit(K,i,min_x,min_y,settings,Figname,log = True):
+def plotSplit(K,i,min_x,min_y,settings,neg_percentage,Figname,log = True):
      # plt.figure(figsize=(10, 5))
     fig, ax = plt.subplots(figsize=(10, 5))
     sns.kdeplot(K,ax = ax)
@@ -442,9 +448,8 @@ def plotSplit(K,i,min_x,min_y,settings,Figname,log = True):
     # plt.xticks(np.arange(int(np.floor(K.min())),int(np.ceil(K.max())),0.2))
     
 
-    percentage = np.round(len(K[K<min_x])/len(K),2)*100
-    print(f'k{i} negative percentage: {percentage}%')
-    plt.title(f'K{i} ; limit = {np.round(min_x,4)}; neg percentage = {percentage}%')
+    # print(f'k{i} negative percentage: {neg_percentage}%')
+    plt.title(f'K{i} ; limit = {np.round(min_x,4)}; neg percentage = {neg_percentage}%')
 
     
     plt.scatter(min_x,min_y)
@@ -470,7 +475,14 @@ def plotSplit(K,i,min_x,min_y,settings,Figname,log = True):
     # sns.kdeplot(K['CD45'])
     # plt.scatter(min_x[i],min_y[i])
 
-    
+def saveCsv_split(dir_plots,name,arr):
+    with open(dir_plots+name+'.csv', 'a') as f:
+        w= writer(f)
+        for m in arr:
+            feature ,sample,percentage = m
+            row = [f'{feature} percentage: sample {sample} = {percentage}']
+            w.writerow(row)
+            print(row)     
 
 def createCorrMat(rawMat,method ='spearman',
                   settings =None ,title='',figname = ''):

@@ -9,8 +9,10 @@ def Gate(data,name,GateColumns):
     ddf=data.copy()
     # print(name, 'gating on: ', GateColumns)
     # print("Initial number of samples: ",len(ddf))
-    # index of gating values ddf[['H3.3','H4']] larger than  Core gate value(5) 
-    ind = (ddf[GateColumns]>5).all(axis=1)   
+    # index of gating values ddf[['H3.3','H4']] larger than  Core gate value(5)
+
+    ind = (ddf[GateColumns]>5).all(axis=1)
+
     ddf=ddf[ind]
     # print("Core Gate: ",len(ddf))
     
