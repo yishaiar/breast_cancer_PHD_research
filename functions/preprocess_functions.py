@@ -5,29 +5,35 @@ from tqdm import tqdm
 import pandas as pd
 
 
-def Gate(data,name,GateColumns):
+def Gate(data,name,GateColumns, gateValue=5):
+    arr = []
+    K=data.copy()
+    for col in  GateColumns:
+        p = np.round(len(K[K[col]>gateValue])/len(K),3)*100
+        # print(f'{col}:percentage passed gating {p}%')
+        arr.append([name,col,p])
     ddf=data.copy()
     # print(name, 'gating on: ', GateColumns)
     # print("Initial number of samples: ",len(ddf))
     # index of gating values ddf[['H3.3','H4']] larger than  Core gate value(5)
 
-    ind = (ddf[GateColumns]>5).all(axis=1)
+    ind = (ddf[GateColumns]>gateValue).all(axis=1)
 
     ddf=ddf[ind]
     # print("Core Gate: ",len(ddf))
     
     # index of quantile 99.99% gating values (remove outliers)
     quantile = np.quantile(ddf,0.9999,axis=0)
-    outliers = ddf[(ddf>quantile).any(axis=1)]
+    # outliers = ddf[(ddf>quantile).any(axis=1)]
     ddf=ddf[(ddf<quantile).all(axis=1)]
     # print("Outlier Gate: ",len(ddf), ', samples removed:', len(outliers))
     # outliers distribution is not in a specific feature:
     
     # outliers [ outliers>quantile] = None
     # print(outliers.head(35))
-    data=ddf.copy()
-    del ddf
-    return data
+    # data=ddf.copy()
+    # ddf = None
+    return ddf,arr
 
 def arcsinh_transform(unscaled_data, scale=5):
     scaled_data=np.arcsinh(unscaled_data.copy()/scale)

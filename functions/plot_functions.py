@@ -81,16 +81,16 @@ def drawUMAPbySampleClust(X_2d, k,ind_cluster,M,settings,title = '',Figname = ''
         plt.show()
     else:
         plt.close()
-def drawUMAPbySample(X_2d,k, ind,labels,settings,colors = None,title = '',Figname = '' ):
+def drawUMAPbySample(X_2d,k, ind,labels,settings,colors = None,backgroundColor = 'lightgrey' ,title = '',Figname = '',):
     # filter labels of data which is actually in the batch
     # todo..
     # labels = labels[1,:]
     # +1 due to existing clust value:-1
-    if colors==None:
+    if colors is None:
         cc = cm.rainbow((labels+1)/np.max(labels+1))
     else:
         # add black for -1 cluster
-        colors = np.vstack(([0,0,0,1],np.asarray(colors)))
+        
         cc = np.asarray([colors[l] for l in labels+1])
 
     clusters = []
@@ -115,10 +115,9 @@ def drawUMAPbySample(X_2d,k, ind,labels,settings,colors = None,title = '',Fignam
     # colors1 = np.arange(arr.max())
     # colors = cm.rainbow(colors1/(arr.max()-1))
 
-    
     # cc = colors[(arr1[(k[ind_cluster][M]-1).astype(int)]).astype(int)]
     plt.figure(figsize=(6, 5))
-    plt.scatter(X_2d[:,0],X_2d[:,1],c = 'lightgrey', alpha=0.2,s=2)
+    plt.scatter(X_2d[:,0],X_2d[:,1],c = backgroundColor, alpha=0.2,s=2)
     for u,cluster in zip(uniq,clusters):
         plt.scatter(X_2d[ind][cluster][:,0],X_2d[ind][cluster][:,1],c = cc[cluster],s=2,label = u,)#alpha=0.5
     
@@ -223,9 +222,12 @@ def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname
     for M in NamesAll: 
         _, ax = plt.subplots(1,numSubplots,figsize=(int(4*numSubplots),4))
         # x1 =np.inf;x2 =-np.inf;y1 =np.inf;y2 =-np.inf;
-        for [i, K],color,fig_num in zip(k.items(),colors,figures):
+        for [i, K],color in zip(k.items(),colors):
             # i = list(k.keys())[-2];K=k[i];color = colors[-2];fig_num = figures[-2]
-            fig_num -= 1
+            try:
+                fig_num = figures[i] - 1
+            except:
+                continue
             
             
             # sns.kdeplot(K[M],c=c,label='Tumor ' + i)
@@ -284,7 +286,11 @@ def HeatMap(k_clust,names,settings,clustFeature='Clust',
     # k_clust = K[K.Clust!=-1]
     Mat=k_clust.groupby(by=clustFeature).mean()[names]
     Mat = Mat[names]
+    # csv
+    Mat.to_csv(settings[0]+figname+'.csv')
+    # heatmap figure
     plotHeatMap(Mat,title,settings,figname)
+
 def plotHeatMap(Mat,title,settings,figname,figsize = (10, 10)):    
     amin=Mat.min().min()
     amax=Mat.max().max()
@@ -439,12 +445,13 @@ def MeanDist(data1,data2,Markers,settings,title='',figname = '',font_size = 10):
         plt.close()
 
 
-def plotSplit(K,i,min_x,min_y,settings,neg_percentage,Figname,log = True):
-     # plt.figure(figsize=(10, 5))
-    fig, ax = plt.subplots(figsize=(10, 5))
+def plotSplit(K,i,min_x,min_y,settings,neg_percentage,Figname,log = True,xsize = 2):
+    #  plt.figure(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(2*xsize, xsize))
     sns.kdeplot(K,ax = ax)
     start, end = ax.get_xlim()
-    ax.xaxis.set_ticks(np.arange(int(np.floor(start)), int(np.ceil(end)), 0.4))
+    res = 4/xsize
+    ax.xaxis.set_ticks(np.arange(int(np.floor(start)), int(np.ceil(end)), res))
     # plt.xticks(np.arange(int(np.floor(K.min())),int(np.ceil(K.max())),0.2))
     
 
@@ -479,8 +486,8 @@ def saveCsv_split(dir_plots,name,arr):
     with open(dir_plots+name+'.csv', 'a') as f:
         w= writer(f)
         for m in arr:
-            feature ,sample,percentage = m
-            row = [f'{feature} percentage: sample {sample} = {percentage}']
+            sample,feature,percentage = m
+            row = [f'sample {sample}: {feature} percentage = {percentage}']
             w.writerow(row)
             print(row)     
 
@@ -502,3 +509,15 @@ def createCorrMat(rawMat,method ='spearman',
         # plot matrices..
 
     # return kEpinuc,corrMatFeatures,corrMatSamples
+
+
+def hex_to_rgba(hex):
+    rgb = []
+    for i in (0, 2, 4):
+        decimal = int(hex[i:i+2], 16)
+        # normalized rgb
+        rgb.append(decimal/255)
+    # alpha
+    rgb.append(0.5)
+    RGB = tuple(rgb)
+    return RGB

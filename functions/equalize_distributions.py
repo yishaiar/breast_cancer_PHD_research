@@ -142,8 +142,8 @@ def MixedFit(data1,data2,data3):
 def fitDF(fit_into,fit_from,df_to_fit,func):
     cols = [col for col in fit_into.columns if col in fit_from.columns]
     dropped_cols = [col for col in df_to_fit.columns if col not in cols]
-    if len(dropped_cols)>0:
-        print (f'cols dropped due to fitting: {dropped_cols} ')
+    # if len(dropped_cols)>0:
+    #     print (f'cols dropped due to fitting: {dropped_cols} ')
 
     fitted_df = pd.DataFrame(columns=cols)
     for col in cols:

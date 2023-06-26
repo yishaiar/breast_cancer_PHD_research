@@ -127,20 +127,21 @@ def subsample_data(k,name,n=5000):
             print ('           ',name+i+ ' new size = ', len(k[i]))
     return k
 
-def subsample_k(K,kInd,subsample,dir_data,n=5000):
+def subsample_k(K,kInd,dir_data,n=5000):
     lenK=len(K)
     if len(K)<=n:
        print (f'original size: {lenK}, file unchanged')
 
     else:# len(K)>n:
-        if subsample:
+        # index file does not exist
+        if not os.path.exists(f"{dir_data}{kInd}_subsample_indexes.p"):
     #     # random sample -much larger sample
             idx=np.random.choice(len(K), replace = False, size = n)
             # newK = K.iloc[[idx]]
             pickle_dump(f"{kInd}_subsample_indexes", idx,dir_data)
             
             print (f'original size: {lenK}, new size: {idx.shape[0]} indexes saved to file')
-        else: #load from file
+        else: #load from index file
            idx = pickle_load(f"{kInd}_subsample_indexes",dir_data)
            print (f'original size: {lenK}, new size: {idx.shape[0]} indexes loaded from file')
         K=K.iloc[idx]
