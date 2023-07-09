@@ -71,34 +71,36 @@ def test_fetures(name):
     
 from os import listdir
 from os.path import isfile, join
-from fpdf import FPDF
+# from fpdf import FPDF
 
 
 
 
 # cairosvg.svg2png(url=im_name, write_to=im_name+'.png')
 
-def imList2pdf(dir_plots,j,groups):
+# def imList2pdf(dir_plots,j,groups):
         
-    print(dir_plots)
+#     print(dir_plots)
     
-    totalImagelist = [ join(dir_plots, f) for f in listdir(dir_plots) if isfile(join(dir_plots, f)) and f.endswith ('png')]
-    for group in groups:
-        name = j+'_'+group+'_'
-        print(name)
-        imagelist = [ f for f in totalImagelist if name in f]
-        imagelist.sort()
+#     totalImagelist = [ join(dir_plots, f) for f in listdir(dir_plots) if isfile(join(dir_plots, f)) and f.endswith ('png')]
+#     for group in groups:
+#         name = j+'_'+group+'_'
+#         print(name)
+#         imagelist = [ f for f in totalImagelist if name in f]
+#         imagelist.sort()
         
 
-        pdf = FPDF()
-        pdf.add_page()
+#         pdf = FPDF()
+#         pdf.add_page()
 
-        for im_name in tqdm(imagelist):
+#         for im_name in tqdm(imagelist):
             
-            pdf.image(im_name,x = 0,y = 50,w = 210,h = 210)
-            # counter +=1
-            pdf.add_page()           
-        pdf.output(dir_plots+name+'.pdf', "F")   
+#             pdf.image(im_name,x = 0,y = 50,w = 210,h = 210)
+#             # counter +=1
+#             pdf.add_page()           
+#         pdf.output(dir_plots+name+'.pdf', "F")  
+# 
+#  
     # counter = 0   
     # for im_name in tqdm(imagelist):
     #     if counter ==2:
@@ -207,18 +209,18 @@ def getValsCsv(dir_data,vars,lensize = 10,fname = '_params.csv' ):
     # print(val1,val2 )
     return float(val1),int(float(val2) )
 import json
-def getJ(j,group_ind,address):
+def getJ(j,group_ind,address,args):
     # if thers an external program runnig script (saving a json file) - take it
     # otherwise take the input j
     fname = 'j.json'
     try:   
         with open(fname, 'r') as f: 
-            j,group_ind,address =  json.load(f)
+            j,group_ind,address,args =  json.load(f)
         os.remove(fname)
     except:
         pass
     print(f'current j = {j},group_ind = {group_ind}, add = {address}')
-    return j,group_ind,address  
+    return j,group_ind,address,args  
 # fname = 'j.json'
 # val =['1','2']
 # with open(fname, 'w') as f:
