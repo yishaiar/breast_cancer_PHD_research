@@ -244,3 +244,20 @@ def load_adjusted_batch(j,k,dir_indexes):
         K = K[kInd]
         k_append = pd.concat([k_append,K.copy()], ignore_index=True,axis=0,)
     return k_append
+
+
+
+def figSettings(fig,figname,settings):
+    if settings is not None:
+        dir,show,saveSVG = settings
+    else: #none
+        import os
+        dir,show,saveSVG = os.getcwd(), True,False
+
+    fig.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
+    if saveSVG:
+        fig.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
+    if show:
+        fig.show()
+    else:
+        plt.close(fig)

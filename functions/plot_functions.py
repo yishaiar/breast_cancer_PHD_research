@@ -282,14 +282,22 @@ def scatter(k,f1,f2,name,figname,settings):
 
 def HeatMap(k_clust,names,settings,clustFeature='Clust',
             title = '',figname = '' ):
-    dir,show,saveSVG = settings
+    # dir,show,saveSVG = settings
     # k_clust = K[K.Clust!=-1]
     Mat=k_clust.groupby(by=clustFeature).mean()[names]
-    Mat = Mat[names]
+    # Mat = Mat[names]
     # csv
     Mat.to_csv(settings[0]+figname+'.csv')
     # heatmap figure
-    plotHeatMap(Mat,title,settings,figname)
+    matXsize = int(np.ceil(len(Mat.index)*0.7))
+    matYsize = int(np.ceil(len(Mat.columns)*0.7))
+    if matXsize<10:
+        matXsize = 10
+    if matYsize<10:
+        matYsize = 10
+    figsize = (matXsize, matYsize)
+    
+    plotHeatMap(Mat,title,settings,figname,figsize )
 
 def plotHeatMap(Mat,title,settings,figname,figsize = (10, 10)):    
     amin=Mat.min().min()
