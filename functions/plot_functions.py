@@ -497,7 +497,7 @@ def saveCsv_split(dir_plots,name,arr):
             sample,feature,percentage = m
             row = [f'sample {sample}: {feature} percentage = {percentage}']
             w.writerow(row)
-            print(row)     
+            # print(row)     
 
 def createCorrMat(rawMat,method ='spearman',
                   settings =None ,title='',figname = ''):

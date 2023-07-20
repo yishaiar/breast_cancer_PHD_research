@@ -3,6 +3,7 @@ import pickle
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
     
 def deleteVars(to_delete=[]):
   for _var in to_delete:
@@ -129,7 +130,7 @@ def subsample_data(k,name,n=5000):
             print ('           ',name+i+ ' new size = ', len(k[i]))
     return k
 
-def subsample_k(K,kInd,dir_data,n=5000):
+def subsample_k(K,kInd,dir_data,n=500):
     lenK=len(K)
     if len(K)<=n:
        print (f'original size: {lenK}, file unchanged')
@@ -228,22 +229,22 @@ def getJ(j,group_ind,address,args):
 # j,group_ind = getJ(j=2,group_ind=4)
 
 
-# 
-def load_adjusted_batch(j,k,dir_indexes):
-    # k = k[j].copy()
-    Ind, by_sample= pickle_load(f"{j}_adjusted_subsample_indexes",dir_indexes)
-    uniq = [int(i) if i != 4.1 else float(i)  for i in np.unique(by_sample)]
-    # appendDict ={}
+# # 
+# def load_adjusted_batch(j,k,dir_indexes):
+#     # k = k[j].copy()
+#     Ind, by_sample= pickle_load(f"{j}_adjusted_subsample_indexes",dir_indexes)
+#     uniq = [int(i) if i != 4.1 else float(i)  for i in np.unique(by_sample)]
+#     # appendDict ={}
     
-    k_append= pd.DataFrame()
-    for samp in uniq:
-        K=k[k['by_sample']==samp].copy()
-        samp_idx = Ind[by_sample ==samp]
+#     k_append= pd.DataFrame()
+#     for samp in uniq:
+#         K=k[k['by_sample']==samp].copy()
+#         samp_idx = Ind[by_sample ==samp]
         
-        kInd = [True if (i in samp_idx) else False for i in np.asarray(K.Ind)]
-        K = K[kInd]
-        k_append = pd.concat([k_append,K.copy()], ignore_index=True,axis=0,)
-    return k_append
+#         kInd = [True if (i in samp_idx) else False for i in np.asarray(K.Ind)]
+#         K = K[kInd]
+#         k_append = pd.concat([k_append,K.copy()], ignore_index=True,axis=0,)
+#     return k_append
 
 
 
