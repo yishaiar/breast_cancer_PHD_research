@@ -45,3 +45,31 @@ def calculate_umap(data,n_neighbors=15, min_dist=0.1, n_components=2, metric='eu
     u = fit.fit_transform(data)
     
     return u
+
+
+from sklearn.cluster import KMeans
+# from sklearn.metrics import silhouette_score
+
+def kmeans_fit(data,n_clusters=3,n_init=10,max_iter=300):
+    kmeans = KMeans(
+        init="random",
+        random_state=42,
+        n_clusters=n_clusters,
+        n_init=n_init,
+        max_iter=max_iter,
+        
+    )
+    data = StandardScaler().fit_transform(data)
+    kmeans.fit(data)
+
+    # # The lowest SSE value
+    # print(kmeans.inertia_)
+
+    # # Final locations of the centroid
+    # print(kmeans.cluster_centers_)
+
+    # # The number of iterations required to converge
+    print(f'converged after {kmeans.n_iter_} iterations')
+
+    return np.asarray(kmeans.labels_)
+# labels = kmeans_fit(data = scaled_features,n_clusters=3,n_init=10,max_iter=300)

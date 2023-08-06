@@ -5,7 +5,11 @@ from tqdm import tqdm
 import pandas as pd
 
 
-def Gate(data,name,GateColumns, gateValue=5):
+
+
+
+
+def Gate(data,name,cols,GateColumns, gateValue=5):
     arr = []
     K=data.copy()
     for col in  GateColumns:
@@ -23,9 +27,9 @@ def Gate(data,name,GateColumns, gateValue=5):
     # print("Core Gate: ",len(ddf))
     
     # index of quantile 99.99% gating values (remove outliers)
-    quantile = np.quantile(ddf,0.9999,axis=0)
+    quantile = np.quantile(ddf[cols],0.9999,axis=0)
     # outliers = ddf[(ddf>quantile).any(axis=1)]
-    ddf=ddf[(ddf<quantile).all(axis=1)]
+    ddf=ddf[(ddf[cols]<quantile).all(axis=1)]
     # print("Outlier Gate: ",len(ddf), ', samples removed:', len(outliers))
     # outliers distribution is not in a specific feature:
     
@@ -35,9 +39,9 @@ def Gate(data,name,GateColumns, gateValue=5):
     # ddf = None
     return ddf,arr
 
-def arcsinh_transform(unscaled_data, scale=5):
-    scaled_data=np.arcsinh(unscaled_data.copy()/scale)
-    return scaled_data
+def arcsinh_transform(unscaled_data,cols, scale=5):
+    scaled_data=np.arcsinh(unscaled_data[cols].copy()/scale)
+    return scaled_data[cols]
 
 
 # Kernel density estimation is the random variable's probability density function (PDF) estimatation
@@ -100,12 +104,12 @@ def NormalizeNew(data,ToNorm):
     BB=out.params['b'].value
     M=M1*AA+M2*(1-AA-BB)+M3*BB
     ddf=ddf.divide(M,axis=0).copy()
-    data=ddf
-    ddf2[ToNorm]=data[ToNorm]
-    data=ddf2.copy()
-    del ddf 
-    del ddf2
-    return data
+    # data=ddf
+    # ddf2[ToNorm]=data[ToNorm]
+    # data=ddf2.copy()
+    # del ddf 
+    # del ddf2
+    return ddf[ToNorm]
     
 def R2(params,      ddf, M1,M2):
     a=params['a']
@@ -139,27 +143,27 @@ def NormalizeNew2(data,ToNorm):
 
     M=M1*AA+M2*(1-AA)
     ddf=ddf.divide(M,axis=0).copy()
-    data=ddf.copy()
-    # print(data.shape,ddf2.shape)
+    # data=ddf.copy()
+    # # print(data.shape,ddf2.shape)
     
-    # ddf2[ToNorm] are normalized
-    ddf2[ToNorm]=data[ToNorm]
-    data=ddf2.copy()
-    del ddf 
-    del ddf2
-    return data
+    # # ddf2[ToNorm] are normalized
+    # ddf2[ToNorm]=data[ToNorm]
+    # data=ddf2.copy()
+    # del ddf 
+    # del ddf2
+    return ddf[ToNorm]
 
 def Mean_Core_normalization(K, ToNorm,coreFetures=['H3.3','H4']):
     Mean_Core=K[coreFetures].mean(axis=1)
     for N in ToNorm:
         K[N]=K[N]/Mean_Core
-    return K
+    return K[ToNorm]
 
-def scale_data(K):
+def scale_data(K,cols):
     # calculated for each feature colomn on all samples (rows)
     aaaa=pd.concat([K]).copy()
     m=np.mean(aaaa, axis=0)
     s=np.std(aaaa)
     K=(K-m)/s
-    return K
+    return K[cols]
 

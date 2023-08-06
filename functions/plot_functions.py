@@ -6,6 +6,8 @@ import anndata
 from matplotlib.pyplot import rc_context
 import pandas as pd
 
+from usefull_functions import *
+
 
 from csv import writer
 
@@ -163,17 +165,19 @@ def ClustFeaturePercentage(cluster,feature,feature_val):
     sample = cluster[cluster[feature] == feature_val]
     percentage = len(sample)/clust_size*100
     return percentage     
-def ClustPercentageBySample(k_cluster,M):
+def ClustPercentageBySample(k_cluster,M,names=None):
     percentage_arr =[]
     arr = np.unique(k_cluster[M]).astype(float)
+    if names is None:
+        names = arr
     for i in range(0,arr.shape[0]):
         percentage = ClustFeaturePercentage(k_cluster,M,arr[i])
-        percentage_arr.append([arr[i],np.round(percentage,2)]) 
+        percentage_arr.append([names[i],np.round(percentage,2)]) 
     return percentage_arr
 def drawDbscan(X,labels,core_samples_mask,settings,title='',figname='',figsize=(6, 5)):
     # Black removed and is used for noise instead.
     plt.figure(figsize = figsize)
-    unique_labels = set(labels)
+    unique_labels = np.unique(labels)
     colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, len(unique_labels))]
 
     # colors = [plt.cm.Spectral(each) 
@@ -214,23 +218,19 @@ def drawDbscan(X,labels,core_samples_mask,settings,title='',figname='',figsize=(
             
 
     
+import random   
+
 def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname = '',numSubplots = 4 ):
     
-    colors = cm.rainbow(np.linspace(0, 1, len (k.keys())))
-    import random   
+    colors = cm.rainbow(np.linspace(0, 1, len (figures.keys())))
     random.shuffle(colors)
     for M in NamesAll: 
-        _, ax = plt.subplots(1,numSubplots,figsize=(int(4*numSubplots),4))
+        fig, ax = plt.subplots(1,numSubplots,figsize=(int(4*numSubplots),4))
         # x1 =np.inf;x2 =-np.inf;y1 =np.inf;y2 =-np.inf;
-        for [i, K],color in zip(k.items(),colors):
-            # i = list(k.keys())[-2];K=k[i];color = colors[-2];fig_num = figures[-2]
-            try:
-                fig_num = figures[i] - 1
-            except:
-                continue
-            
-            
-            # sns.kdeplot(K[M],c=c,label='Tumor ' + i)
+        for i, color in zip(figures.keys(),colors):
+            K = k[i]
+            fig_num = figures[i] - 1
+
             try: #if K doesnt contain the feature pass..
               func(K[M],color=color,label='Tumor ' + i,ax = ax[fig_num])
               # sns.kdeplot(K2[M],c='g',label='Tumor 2')
@@ -249,17 +249,11 @@ def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname
         # for fig_num in range(numSubplots):
         #     ax[fig_num].set_xlim(x1,x2)
         #     ax[fig_num].set_ylim(y1,y2)
-        figname = Figname + M
-        
-        dir,show,saveSVG = settings
-        plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
-        if saveSVG:
-            plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
-        if show:
-            plt.show()
-        else:
-            plt.close()
-        # break
+        figSettings(fig,Figname + M,settings)
+
+
+
+
             
 def scatter(k,f1,f2,name,figname,settings):
     plt.figure(figsize = (15,15))
@@ -529,3 +523,32 @@ def hex_to_rgba(hex):
     rgb.append(0.5)
     RGB = tuple(rgb)
     return RGB
+
+
+def draw_kmeans(data,labels,settings,names=[],title='',figname='',figsize=(6, 5)):
+    labels = np.asarray(labels)
+    unique_labels = np.unique(labels)
+    colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, max(len(unique_labels),np.max(unique_labels)+1))]
+
+    # colors = cm.rainbow(np.linspace(0, 1, np.unique(labels).shape[0]))
+    cc  = np.asarray([ colors[i] for i in labels])
+    if len(names)!=0:
+        names_ = np.asarray([ names[i] for i in labels])
+    else:
+        names_ = labels
+    data = np.asarray(data)
+    fig,axs = plt.subplots(1,figsize = figsize)
+
+    # plt.figure(figsize = figsize)
+    axs.set_title(title)
+
+    for i in unique_labels:
+        ind = labels==i
+        #
+        axs.scatter(data[ind, 0],data[ind, 1],c= cc[ind], label = names_[ind][0])#label = labels[ind]
+    axs.legend(fontsize=15, title_fontsize='40',
+        loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=5)
+
+
+    figSettings(fig,figname,settings)
+    return colors

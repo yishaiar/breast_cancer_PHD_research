@@ -12,14 +12,17 @@ def deleteVars(to_delete=[]):
           
           
 def removeFeatures(dict,features =['']):
-  for key in dict:
-    list = dict[key].copy()
-    for feature in features:
-      try:
-        list.remove(feature)
-      except:
-        pass
-    dict[key] = list
+  
+  for key in dict.keys():
+    if dict[key] is not None:
+        list_ = dict[key].copy()
+
+        for feature in features:
+            try:
+                list_.remove(feature)
+            except:
+                pass
+        dict[key] = list_
   return dict
 
 
@@ -130,7 +133,7 @@ def subsample_data(k,name,n=5000):
             print ('           ',name+i+ ' new size = ', len(k[i]))
     return k
 
-def subsample_k(K,kInd,dir_data,n=500):
+def subsample_k(K,kInd,dir_data, ind = 'ind',n=500):
     lenK=len(K)
     if len(K)<=n:
        print (f'original size: {lenK}, file unchanged')
@@ -139,17 +142,32 @@ def subsample_k(K,kInd,dir_data,n=500):
         # index file does not exist
         if not os.path.exists(f"{dir_data}{kInd}_subsample_indexes.p"):
     #     # random sample -much larger sample
-            idx=np.random.choice(len(K), replace = False, size = n)
-            # newK = K.iloc[[idx]]
+            # idx=np.random.choice(len(K), replace = False, size = n)
+            idx = np.asarray(K[ind].copy())
+            np.random.shuffle(idx)
+            idx = idx[:n]
             pickle_dump(f"{kInd}_subsample_indexes", idx,dir_data)
             
             print (f'original size: {lenK}, new size: {idx.shape[0]} indexes saved to file')
         else: #load from index file
            idx = pickle_load(f"{kInd}_subsample_indexes",dir_data)
            print (f'original size: {lenK}, new size: {idx.shape[0]} indexes loaded from file')
-        K=K.iloc[idx]
-    return K
+        newIdx = [ K.index[K[ind]==i][0] for i in idx ]#else print(i) 
+        # newIdx = [ K.index[K.Ind==i][0] if (i in K.Ind) else print(i) for i in idx ]#else print(i) 
 
+        if len(newIdx) != n:
+            print ('size error')
+        K=K.loc[newIdx]
+       
+        # newIdx ==idx
+
+        
+    return K
+# for i,j in enumerate(idx):
+#     try:
+#         c= K.iloc[idx[i]]
+#     except:
+#         print(idxi)
 
 def createAppendDataset(k,namesAll,kInd,uncommonFeatures ):
     # create an append dict; every sample is without its uncommon features and downsampled 
@@ -168,10 +186,9 @@ def createAppendDataset(k,namesAll,kInd,uncommonFeatures ):
 
     names  = removeFeatures(namesAll.copy(),uncommonFeatures)
     # append data
-    names['NamesAll'] += ['by_sample','Ind']
+    # names['NamesAll'] 
     # k_append1= pd.DataFrame(columns =NamesAll)
-    k_append= pd.DataFrame(columns = names['NamesAll'])
-
+    k_append= pd.DataFrame(columns = names['NamesAll']+ ['samp','ind'])
     for i, K in appendDict.items():
 
         # K= subsample_k(K[names['NamesAll']].copy(),n)
@@ -179,13 +196,15 @@ def createAppendDataset(k,namesAll,kInd,uncommonFeatures ):
         # k_append1 = k_append1.append(K.copy(), ignore_index=True)
         k_append = pd.concat([k_append,K.copy()], ignore_index=True,axis=0,)
         
-    names['by_sample'] = k_append['by_sample'].copy()
-    names['Ind'] = k_append['Ind'].copy()
+    # names['samp'] = k_append['sample'].copy()
+    # names['ind'] = k_append['Ind'].copy()
 
     # unitest
     arr=[]
     for i in kInd:
-        check = k_append.loc[k_append[k_append['by_sample']==float(i)].index[0]].isna()
+        i = i[:-1] if 'a' in  i else i
+
+        check = k_append.loc[k_append[k_append['samp']==float(i)].index[0]].isna()
         check = list(check[check].index)
         arr += [col for col in check if col not in arr]
        
@@ -259,6 +278,6 @@ def figSettings(fig,figname,settings):
     if saveSVG:
         fig.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
     if show:
-        fig.show()
+        plt.show()
     else:
         plt.close(fig)

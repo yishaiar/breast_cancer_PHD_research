@@ -140,15 +140,16 @@ def MixedFit(data1,data2,data3):
     return data3_into_data1 
 
 def fitDF(fit_into,fit_from,df_to_fit,func):
-    cols = [col for col in fit_into.columns if col in fit_from.columns]
-    dropped_cols = [col for col in df_to_fit.columns if col not in cols]
+    
     # if len(dropped_cols)>0:
-    #     print (f'cols dropped due to fitting: {dropped_cols} ')
+    cols = df_to_fit.columns
 
-    fitted_df = pd.DataFrame(columns=cols)
+    fitted_df = pd.DataFrame(columns=cols,index = df_to_fit.index)
     for col in cols:
         fitted_df[col] = func(fit_into[col],fit_from[col],df_to_fit[col])
-    return fitted_df,dropped_cols
+    # return fitted_df,dropped_cols
+
+    return fitted_df[cols]
 # qqFit(data1,data2,data3[ind2])
 
 
