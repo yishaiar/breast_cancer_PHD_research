@@ -1,45 +1,88 @@
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import seaborn as sns
 import numpy as np
 import scanpy as sc
 import anndata
 from matplotlib.pyplot import rc_context
 import pandas as pd
-
+import matplotlib.cm as cm
+import matplotlib.patches as mpatches
 from usefull_functions import *
-
-
+from functions import *
 from csv import writer
 
 
-from functions import *
+
+def drawUMAP1(X_2d, NamesAll,CAll,settings,title = '',Figname = '' ,log = False):
+        
+    for M in NamesAll:
+        
+        fig,axs = plt.subplots(1,figsize = (6, 5))
+        cc=CAll[M]#[mask]
+        if log:
+            cc = np.log(cc)
+
+        # axs.scatter(X_2d[:,0],X_2d[:,1],s=2,c=cc, cmap=plt.cm.seismic,)
+
+        plt.scatter(X_2d[:,0],X_2d[:,1],s=2,
+                    c=cc, cmap=plt.cm.seismic)
+        # plt.colorbar(ax=axs)
+        
+        # norm = mpl.colors.Normalize(vmin=cc.quantile(0.01), vmax=cc.quantile(0.99))
+        # fig.colorbar(plt.cm.ScalarMappable(norm=norm,cmap=plt.cm.seismic),ax  = axs)
+        plt.colorbar()
+        # print(cc.quantile(0.01),cc.quantile(0.99))
+        
+        # axs.set_clim(cc.quantile(0.01),cc.quantile(0.99))
+
+        plt.clim(cc.quantile(0.01),cc.quantile(0.99))
+        # axs.set_title(title+ " - "+M)
+        plt.title(title+ " - "+M)
+        
+        # figname = Figname + M
+        # figSettings(fig,figname,settings)
+
+        # dir,show,saveSVG = settings
+        # plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
+        # if saveSVG:
+        #     plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
+        # if show:
+        #     plt.show()
+        # else:
+        #     plt.close()
+
+
+
 
 
 def drawUMAP(X_2d, NamesAll,CAll,settings,title = '',Figname = '' ):
         
     for M in NamesAll:
-        cc=CAll[M]#[mask]
-        plt.figure(figsize=(6, 5))
-        plt.scatter(X_2d[:,0],X_2d[:,1],s=2,
-                    c=cc, cmap=plt.cm.seismic)
-
-        plt.colorbar()
-
-        plt.clim(cc.quantile(0.01),cc.quantile(0.99))
-        plt.title(title+ " - "+M)
         
-        figname = Figname + M
-    
-        dir,show,saveSVG = settings
-        plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
-        if saveSVG:
-            plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
-        if show:
-            plt.show()
-        else:
-            plt.close()
-import matplotlib.cm as cm
-import matplotlib.patches as mpatches
+        
+        cc=CAll[M]#[mask]
+        drawSingleUMAP (X_2d, intensity = cc,name=M,settings = settings,title = title,Figname = Figname)
+
+        if M == 'Ki67':
+            cc = np.log(cc)
+            M = 'log_view_'+M
+            drawSingleUMAP (X_2d, intensity = cc,name=M,settings = settings,title = title,Figname = Figname)
+        
+def drawSingleUMAP (X_2d, intensity,name,settings,title = '',Figname = '' ):
+        fig,axs = plt.subplots(1,figsize = (6, 5))
+        axs.set_facecolor('lightgray')#xkcd:salmon
+        vmax=intensity.quantile(0.99);vmin=intensity.quantile(0.01)
+        axs.scatter(X_2d[:,0],X_2d[:,1],s=2,c=intensity, cmap=plt.cm.seismic,
+                    vmax=vmax,vmin=vmin)       
+        norm = mpl.colors.Normalize(vmax=vmax,vmin=vmin)
+        fig.colorbar(plt.cm.ScalarMappable(norm=norm,cmap=plt.cm.seismic),ax  = axs)
+        axs.set_title(title+ " - "+name)        
+        figname = Figname + name
+        figSettings(fig,figname,settings)
+
+
+
 def drawUMAPbySampleClust(X_2d, k,ind_cluster,M,settings,title = '',Figname = '' ):
     
 
@@ -92,7 +135,6 @@ def drawUMAPbySample(X_2d,k, ind,labels,settings,colors = None,backgroundColor =
         cc = cm.rainbow((labels+1)/np.max(labels+1))
     else:
         # add black for -1 cluster
-        
         cc = np.asarray([colors[l] for l in labels+1])
 
     clusters = []
@@ -329,27 +371,17 @@ def plotClusters(K,X_2d,labels,colors,NamesAll,settings,title = '',figname = '' 
     K_ann.obsm['X_umap']=X_2d[ind]
     K_ann.obs['clust']=K[ind].Clust.astype('category').values
     
-    with rc_context({'figure.figsize': (6, 5)}):
-        sc.pl.umap(K_ann, color='clust', add_outline=True, legend_loc='on data',
-                legend_fontsize=16, legend_fontoutline=4,frameon=True,
-                title=title,show=False,projection='2d',palette=colors)#
+    # with rc_context({'figure.figsize': (6, 5)}):
+    # fig,axs = plt.subplots(1,figsize = (6, 5))
+    fig = sc.pl.umap(K_ann, color='clust', add_outline=True, legend_loc='on data',
+            legend_fontsize=16, legend_fontoutline=4,frameon=True,return_fig=True,
+            title=title,show=False,projection='2d',palette=colors)#
     
     # palette=['r','orange','yellow','b']
-    dir,show,saveSVG = settings
-    plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
-    if saveSVG:
-        plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
-    if show:
-        plt.show()
-    else:
-        plt.close()
     
-    
-    # with rc_context({'figure.figsize': (4, 4)}):
-    #     sc.pl.umap(K_ann, color=NamesAll+['clust'],ncols=5,vmax='p99.9',vmin='p0.001',
-    #        cmap=plt.cm.seismic,add_outline=True,show=False)
-    # plt.savefig(dir+figname+'_T.png', format="png", bbox_inches="tight", pad_inches=0.2)
-    
+    figSettings(fig,figname,settings)
+
+    # return K_ann
    
 
 
@@ -532,10 +564,17 @@ def draw_kmeans(data,labels,settings,names=[],title='',figname='',figsize=(6, 5)
 
     # colors = cm.rainbow(np.linspace(0, 1, np.unique(labels).shape[0]))
     cc  = np.asarray([ colors[i] for i in labels])
-    if len(names)!=0:
-        names_ = np.asarray([ names[i] for i in labels])
-    else:
-        names_ = labels
+    if len(names)==0:
+        names = unique_labels
+
+    names_ = np.empty(labels.shape,dtype=object)
+    for i in unique_labels:
+        p = np.sum(labels==i)/len(labels)
+        n = f'{names[i]} ({np.round(p*100,2)}%)'
+        names_[labels==i] = n
+        
+
+ 
     data = np.asarray(data)
     fig,axs = plt.subplots(1,figsize = figsize)
 
@@ -547,7 +586,8 @@ def draw_kmeans(data,labels,settings,names=[],title='',figname='',figsize=(6, 5)
         #
         axs.scatter(data[ind, 0],data[ind, 1],c= cc[ind], label = names_[ind][0])#label = labels[ind]
     axs.legend(fontsize=15, title_fontsize='40',
-        loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=5)
+        loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=2)
+    axs.set_facecolor('lightgray')#xkcd:salmon
 
 
     figSettings(fig,figname,settings)

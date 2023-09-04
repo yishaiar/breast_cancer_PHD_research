@@ -73,3 +73,14 @@ def kmeans_fit(data,n_clusters=3,n_init=10,max_iter=300):
 
     return np.asarray(kmeans.labels_)
 # labels = kmeans_fit(data = scaled_features,n_clusters=3,n_init=10,max_iter=300)
+
+def highVal_ind(k,f,labels,max_ = True):
+    arr = []
+    for l in np.unique(labels):
+        arr.append(k[ f].loc[[i for i,label in zip(k.index,labels) if label==l]].mean())
+    wantedLabel = np.argmax(arr) if max_ else np.argmin(arr)
+    # loaction in original index (k isnot reseted)
+    ind = [i for i,label in zip(k.index,labels) if label==wantedLabel]
+    # loaction in new index (according to labels of new index)
+    ind2 = [i for i,j in enumerate(labels) if j==wantedLabel]
+    return ind,ind2
