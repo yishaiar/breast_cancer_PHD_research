@@ -12,7 +12,8 @@ from usefull_functions import *
 from functions import *
 from csv import writer
 
-
+def backgroundColor_():
+    return 'gainsboro' #gainsboro,lightgrey,whitesmoke
 
 def drawUMAP1(X_2d, NamesAll,CAll,settings,title = '',Figname = '' ,log = False):
         
@@ -56,25 +57,35 @@ def drawUMAP1(X_2d, NamesAll,CAll,settings,title = '',Figname = '' ,log = False)
 
 
 
-def drawUMAP(X_2d, NamesAll,CAll,settings,title = '',Figname = '' ):
+def drawUMAP(X_2d, NamesAll,CAll,settings,title = '',Figname = '',limits= [None,None,None,None] ):
+    
+
+
+
+    
         
     for M in NamesAll:
         
         
         cc=CAll[M]#[mask]
-        drawSingleUMAP (X_2d, intensity = cc,name=M,settings = settings,title = title,Figname = Figname)
+        drawSingleUMAP (X_2d, intensity = cc,name=M,settings = settings,limits = limits,title = title,Figname = Figname)
 
-        if M == 'Ki67':
-            cc = np.log(cc)
-            M = 'log_view_'+M
-            drawSingleUMAP (X_2d, intensity = cc,name=M,settings = settings,title = title,Figname = Figname)
+        # if M == 'Ki67':
+        #     cc = np.log(cc)
+        #     M = 'log_view_'+M
+        #     drawSingleUMAP (X_2d, intensity = cc,name=M,settings = settings,title = title,Figname = Figname)
         
-def drawSingleUMAP (X_2d, intensity,name,settings,title = '',Figname = '' ):
+def drawSingleUMAP (X_2d, intensity,name,settings,title = '',Figname = '',limits = [None,None,None,None],backgroundColor = backgroundColor_() ):
         fig,axs = plt.subplots(1,figsize = (6, 5))
-        axs.set_facecolor('lightgray')#xkcd:salmon
+        if limits[0] is not  None:
+            axs.set_xlim(limits[0], limits[2])  
+            axs.set_ylim(limits[1], limits[3])
+ 
+        axs.set_facecolor(backgroundColor)
         vmax=intensity.quantile(0.99);vmin=intensity.quantile(0.01)
         axs.scatter(X_2d[:,0],X_2d[:,1],s=2,c=intensity, cmap=plt.cm.seismic,
-                    vmax=vmax,vmin=vmin)       
+                    vmax=vmax,vmin=vmin) 
+   
         norm = mpl.colors.Normalize(vmax=vmax,vmin=vmin)
         fig.colorbar(plt.cm.ScalarMappable(norm=norm,cmap=plt.cm.seismic),ax  = axs)
         axs.set_title(title+ " - "+name)        
@@ -83,7 +94,7 @@ def drawSingleUMAP (X_2d, intensity,name,settings,title = '',Figname = '' ):
 
 
 
-def drawUMAPbySampleClust(X_2d, k,ind_cluster,M,settings,title = '',Figname = '' ):
+def drawUMAPbySampleClust(X_2d, k,ind_cluster,M,settings,title = '',Figname = '',backgroundColor = backgroundColor_() ):
     
 
     arr = np.unique(k[ind_cluster][M]).astype(int)
@@ -102,7 +113,7 @@ def drawUMAPbySampleClust(X_2d, k,ind_cluster,M,settings,title = '',Figname = ''
     
     cc = colors[(arr1[(k[ind_cluster][M]-1).astype(int)]).astype(int)]
     plt.figure(figsize=(6, 5))
-    plt.scatter(X_2d[:,0],X_2d[:,1],c = 'lightgrey', alpha=0.2,s=2)
+    plt.scatter(X_2d[:,0],X_2d[:,1],c = backgroundColor, alpha=0.2,s=2)
     plt.scatter(X_2d[ind_cluster][:,0],X_2d[ind_cluster][:,1],c = cc,s=2)
     # plt.legend([['0','1','2','3','4','5'])
     recs = []
@@ -126,7 +137,7 @@ def drawUMAPbySampleClust(X_2d, k,ind_cluster,M,settings,title = '',Figname = ''
         plt.show()
     else:
         plt.close()
-def drawUMAPbySample(X_2d,k, ind,labels,settings,colors = None,backgroundColor = 'lightgrey' ,title = '',Figname = '',):
+def drawUMAPbySample(X_2d,k, ind,labels,settings,colors = None,backgroundColor = backgroundColor_() ,title = '',Figname = '',):
     # filter labels of data which is actually in the batch
     # todo..
     # labels = labels[1,:]
@@ -160,10 +171,11 @@ def drawUMAPbySample(X_2d,k, ind,labels,settings,colors = None,backgroundColor =
     # colors = cm.rainbow(colors1/(arr.max()-1))
 
     # cc = colors[(arr1[(k[ind_cluster][M]-1).astype(int)]).astype(int)]
-    plt.figure(figsize=(6, 5))
-    plt.scatter(X_2d[:,0],X_2d[:,1],c = backgroundColor, alpha=0.2,s=2)
+    fig,axs = plt.subplots(1,figsize=(10, 10))
+    # plt.figure(figsize=(10, 10))
+    axs.scatter(X_2d[:,0],X_2d[:,1],c = backgroundColor, alpha=0.2,s=2)
     for u,cluster in zip(uniq,clusters):
-        plt.scatter(X_2d[ind][cluster][:,0],X_2d[ind][cluster][:,1],c = cc[cluster],s=2,label = u,)#alpha=0.5
+        axs.scatter(X_2d[ind][cluster][:,0],X_2d[ind][cluster][:,1],c = cc[cluster],s=2,label = u,)#alpha=0.5
     
     # # plt.legend([['0','1','2','3','4','5'])
     # recs = []
@@ -176,20 +188,22 @@ def drawUMAPbySample(X_2d,k, ind,labels,settings,colors = None,backgroundColor =
     # # plt.legend(recs,lgd,loc=4)
     # plt.legend(recs,lgd,loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=5)
     
-    plt.title(title)
-    plt.legend(fontsize=15, title_fontsize='40',markerscale = 3.5,ncol=5,
+    axs.set_title(title)
+    axs.legend(fontsize=15, title_fontsize='40',markerscale = 3.5,ncol=5,
         loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True,) #
     
-    figname = Figname
+    # figname = Figname
+    figSettings(fig,Figname,settings)
 
-    dir,show,saveSVG = settings
-    plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
-    if saveSVG:
-        plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
-    if show:
-        plt.show()
-    else:
-        plt.close()
+
+    # dir,show,saveSVG = settings
+    # plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
+    # if saveSVG:
+    #     plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
+    # if show:
+    #     plt.show()
+    # else:
+    #     plt.close()
 def saveCsv(dir_plots,name,arr):
     with open(dir_plots+name+'.csv', 'a') as f:
         w= writer(f)
@@ -209,52 +223,48 @@ def ClustFeaturePercentage(cluster,feature,feature_val):
     return percentage     
 def ClustPercentageBySample(k_cluster,M,names=None):
     percentage_arr =[]
-    arr = np.unique(k_cluster[M]).astype(float)
+    arr = np.sort(np.unique(k_cluster[M]).astype(float))
     if names is None:
         names = arr
+    else:
+        
+        # take names from arr (only the existing names in the data), can work with clusters since arr vals are all integers (not samples)
+        names = np.asarray(names)[arr.astype(int)]
+
     for i in range(0,arr.shape[0]):
         percentage = ClustFeaturePercentage(k_cluster,M,arr[i])
         percentage_arr.append([names[i],np.round(percentage,2)]) 
     return percentage_arr
 def drawDbscan(X,labels,core_samples_mask,settings,title='',figname='',figsize=(6, 5)):
-    # Black removed and is used for noise instead.
-    plt.figure(figsize = figsize)
-    unique_labels = np.unique(labels)
-    colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, len(unique_labels))]
 
-    # colors = [plt.cm.Spectral(each) 
-    #           for each in np.linspace(0, 1, len(unique_labels))]
-    for k, col in zip(unique_labels, colors):
-        if k == -1:
-            # Black used for noise.
-            col = [0, 0, 0, 1]
 
-        class_member_mask = (labels == k)
+
+    cmap = plt.get_cmap('Set2')#Set2, twilight, PuOr and cividis.
+    unique_labels = np.sort(np.unique(labels))
+    colors = [(0, 0, 0, 1)]+ [cmap(each) for each in np.linspace(0, 1, len(unique_labels)-1)]# noise (-1 label) is black color
+
+    fig,axs = plt.subplots(1,figsize = figsize)
+    axs.set_title(title)
+
+    for label, color in zip(unique_labels, colors):
+        class_member_mask = (labels == label)
         
         xy = X[class_member_mask & core_samples_mask]
-        plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),label = k,
-                 markeredgecolor='k', markersize=14)
+        axs.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(color),
+                markeredgecolor='k', markersize=14,
+                # add label for legend
+                label = label,)
         
+        # cluster edges with smaller marker size for finess
         xy = X[class_member_mask & ~core_samples_mask]
-        plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
+        axs.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(color),
                  markeredgecolor='k', markersize=6)
     
-    # plt.legend(fontsize=15, title_fontsize='40') 
-    plt.legend(fontsize=15, title_fontsize='40',
+    axs.legend(fontsize=15, title_fontsize='40',
         loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=5)
        
-    # plt.title('Estimated number of clusters: %d' % n_clusters_)
-    plt.title(title)
-    
-    dir,show,saveSVG = settings
-    plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
-    if saveSVG:
-        plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
-    if show:
-        plt.show()
-    else:
-        plt.close()
-    
+
+    figSettings(fig,figname,settings)
     return colors
               
             
@@ -557,7 +567,7 @@ def hex_to_rgba(hex):
     return RGB
 
 
-def draw_kmeans(data,labels,settings,names=[],title='',figname='',figsize=(6, 5)):
+def draw_kmeans(data,labels,settings,names=[],title='',figname='',figsize=(6, 5),backgroundColor = backgroundColor_(),crossLabels = [None,None,None]):
     labels = np.asarray(labels)
     unique_labels = np.unique(labels)
     colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, max(len(unique_labels),np.max(unique_labels)+1))]
@@ -577,6 +587,7 @@ def draw_kmeans(data,labels,settings,names=[],title='',figname='',figsize=(6, 5)
  
     data = np.asarray(data)
     fig,axs = plt.subplots(1,figsize = figsize)
+    
 
     # plt.figure(figsize = figsize)
     axs.set_title(title)
@@ -584,10 +595,30 @@ def draw_kmeans(data,labels,settings,names=[],title='',figname='',figsize=(6, 5)
     for i in unique_labels:
         ind = labels==i
         #
-        axs.scatter(data[ind, 0],data[ind, 1],c= cc[ind], label = names_[ind][0])#label = labels[ind]
+        axs.scatter(data[ind, 0],data[ind, 1],c= cc[ind], label = names_[ind][0],\
+                    s=2,alpha = 0.5)#label = labels[ind]
     axs.legend(fontsize=15, title_fontsize='40',
         loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=2)
-    axs.set_facecolor('lightgray')#xkcd:salmon
+    axs.set_facecolor(backgroundColor)#xkcd:salmon
+    
+    if crossLabels[0] is not None:
+        ind1 = crossLabels[0]==crossLabels[1]
+        if crossLabels[-1] is not None:
+            ind1 *= (labels==crossLabels[-1])
+
+            p = np.sum(ind1)/np.sum(crossLabels[0]==crossLabels[1])
+            print( f'{names[crossLabels[-1]]} ({np.round(p*100,2)}%)')
+        axs.scatter(data[ind1, 0],data[ind1, 1],c= 'black' ,s=2)#label = labels[ind]
+            
+
+
+        # for i in unique_labels:
+        #     ind1 = ind*(labels==i)
+        #     ax = axs.copy(); fig1 = fig.copy()
+        #     ax.scatter(data[ind1, 0],data[ind1, 1],c= 'black',marker = 'x' )
+        #     figSettings(fig1,figname,settings)
+        
+
 
 
     figSettings(fig,figname,settings)

@@ -11,13 +11,13 @@ def deleteVars(to_delete=[]):
           exec(f'del {_var}')
           
           
-def removeFeatures(dict,features =['']):
+def removeFeatures(dict,remove_features =['']):
   
   for key in dict.keys():
     if dict[key] is not None:
         list_ = dict[key].copy()
 
-        for feature in features:
+        for feature in remove_features:
             try:
                 list_.remove(feature)
             except:

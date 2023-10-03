@@ -9,6 +9,8 @@ from sklearn.metrics import silhouette_samples,silhouette_score
 # from sklearn.neighbors import kneighbors_graph
 
 def calculate_dbscan(X,ind,eps=0.1,min_samples=50):
+    # DBSCAN - Density-Based Spatial Clustering of Applications with Noise. 
+    # Finds core samples of high density and expands clusters from them. Good for data which contains clusters of similar density
     
     X = StandardScaler().fit_transform(X)
     db = DBSCAN(eps=eps, min_samples=min_samples).fit(X)

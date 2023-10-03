@@ -1,5 +1,21 @@
 samp,var,alg,val1,val2
 
+#need calibrate
+b2345,iden,umap,0.1,10
+b2345,iden,db,0.1,150
+b2345,epi,umap,0.1,10
+b2345,epi,db,0.1,160
+b2345,all,umap,0.1,10
+b2345,all,db,0.1,300
+
+#need calibrate
+b2345a,iden,umap,0.1,10
+b2345a,iden,db,0.1,150
+b2345a,epi,umap,0.1,10
+b2345a,epi,db,0.1,160
+b2345a,all,umap,0.1,10
+b2345a,all,db,0.1,300
+
 
 #need calibrate
 b234,iden,umap,0.1,10
@@ -7,7 +23,7 @@ b234,iden,db,0.1,150
 b234,epi,umap,0.1,10
 b234,epi,db,0.1,160
 b234,all,umap,0.1,10
-b234,all,db,0.1,200
+b234,all,db,0.1,300
 
 #need calibrate
 b4,iden,umap,0.1,10
@@ -105,6 +121,20 @@ b2,all,db,0.2,70
 8,all,umap,0.1,10
 8,all,db,0.14, 95
 
+8.1,iden,umap,0.1,10
+8.1,iden,db,0.18,120
+8.1,epi,umap,0.1,10
+8.1,epi,db,0.14, 50
+8.1,all,umap,0.1,10
+8.1,all,db,0.14, 95
+
+8.3,iden,umap,0.1,10
+8.3,iden,db,0.18,120
+8.3,epi,umap,0.1,10
+8.3,epi,db,0.14, 50
+8.3,all,umap,0.1,10
+8.3,all,db,0.14, 95
+
 
 7.3,iden,umap,0.1,10
 7.3,iden,db,0.15,85
@@ -162,16 +192,74 @@ b234a,epi,db,0.1,160
 b234a,all,umap,0.1,10
 b234a,all,db,0.1,200
 
+#-------------------
 
+20.3,iden,umap,0.1,10
+20.3,iden,db,0.18,120
+20.3,epi,umap,0.1,10
+20.3,epi,db,0.14, 50
+20.3,all,umap,0.1,10
+20.3,all,db,0.14, 95
 
+19.3,iden,umap,0.1,10
+19.3,iden,db,0.18,120
+19.3,epi,umap,0.1,10
+19.3,epi,db,0.14, 50
+19.3,all,umap,0.1,10
+19.3,all,db,0.14, 95
 
+18.3,iden,umap,0.1,10
+18.3,iden,db,0.18,120
+18.3,epi,umap,0.1,10
+18.3,epi,db,0.14, 50
+18.3,all,umap,0.1,10
+18.3,all,db,0.14, 95
+
+17.3,iden,umap,0.1,10
+17.3,iden,db,0.18,120
+17.3,epi,umap,0.1,10
+17.3,epi,db,0.14, 50
+17.3,all,umap,0.1,10
+17.3,all,db,0.14, 95
+
+#------------------------
+
+20,iden,umap,0.1,10
+20,iden,db,0.18,120
+20,epi,umap,0.1,10
+20,epi,db,0.14, 50
+20,all,umap,0.1,10
+20,all,db,0.14, 95
+
+19,iden,umap,0.1,10
+19,iden,db,0.18,120
+19,epi,umap,0.1,10
+19,epi,db,0.14, 50
+19,all,umap,0.1,10
+19,all,db,0.14, 95
+
+18,iden,umap,0.1,10
+18,iden,db,0.18,120
+18,epi,umap,0.1,10
+18,epi,db,0.14, 50
+18,all,umap,0.1,10
+18,all,db,0.14, 95
+
+17,iden,umap,0.1,10
+17,iden,db,0.18,120
+17,epi,umap,0.1,10
+17,epi,db,0.14, 50
+17,all,umap,0.1,10
+17,all,db,0.14, 95
+
+#----------------------------
 #need calibrate
 15a,iden,umap,0.1,10
 15a,iden,db,0.14, 100
 15a,epi,umap,0.1,10
 15a,epi,db,0.155 ,55
 15a,all,umap,0.1,10
-15a,all,db,0.17,150
+15a,all,db,0.15,55
 
 
 14.2a,iden,umap,0.1,10
@@ -179,7 +267,17 @@ b234a,all,db,0.1,200
 14.2a,epi,umap,0.1,10
 14.2a,epi,db,0.13,30
 14.2a,all,umap,0.1,10
-14.2a,all,db,0.17,90
+14.2a,all,db,0.15,50
+14.2a,cell,umap,0.1,10
+14.2a,cell,db,0.15,40
+
+
+_arcsinh14.2a,cell,umap,0.1,10
+_arcsinh14.2a,cell,db,0.15,40
+_arcsinh14.2a,all,umap,0.1,10
+_arcsinh14.2a,all,db, 0.14,55
+
+
 
 #need calibrate
 14a,iden,umap,0.1,10
@@ -187,7 +285,9 @@ b234a,all,db,0.1,200
 14a,epi,umap,0.1,10
 14a,epi,db,0.16, 65
 14a,all,umap,0.1,10
-14a,all,db,0.17, 125
+14a,all,db,0.16,55
+
+
 
 
 #need calibrate
@@ -196,21 +296,21 @@ b234a,all,db,0.1,200
 13a,epi,umap,0.1,10
 13a,epi,db, 0.165 ,60
 13a,all,umap,0.1,10
-13a,all,db,0.17,130
+13a,all,db,0.16,55
 
 11a,iden,umap,0.1,10
 11a,iden,db,0.11,70
 11a,epi,umap,0.1,10
 11a,epi,db,0.17 ,75
 11a,all,umap,0.1,10
-11a,all,db,0.14, 170
+11a,all,db,0.16,55
 
 8a,iden,umap,0.1,10
 8a,iden,db,0.18,120
 8a,epi,umap,0.1,10
 8a,epi,db,0.14, 50
 8a,all,umap,0.1,10
-8a,all,db,0.14, 95
+8a,all,db,0.16,55
 
 
 7.1a,iden,umap,0.1,10
@@ -218,33 +318,33 @@ b234a,all,db,0.1,200
 7.1a,epi,umap,0.1,10
 7.1a,epi,db,0.18,85
 7.1a,all,umap,0.1,10
-7.1a,all,db,0.12, 90
+7.1a,all,db,0.16,55
 
 7a,iden,umap,0.1,10
 7a,iden,db,0.16,90
 7a,epi,umap,0.1,10
 7a,epi,db,0.18 ,85
 7a,all,umap,0.1,10
-7a,all,db,0.15,105
+7a,all,db,0.15,55
 
 5a,iden,umap,0.1,10
 5a,iden,db,0.17,90
 5a,epi,umap,0.1,10
 5a,epi,db,0.15,65
 5a,all,umap,0.1,10
-5a,all,db,0.17,110
+5a,all,db,0.13,55
 
 4.1a,iden,umap,0.1,10
 4.1a,iden,db,0.17, 55
 4.1a,epi,umap,0.1,10
 4.1a,epi,db,0.16, 75
 4.1a,all,umap,0.1,10
-4.1a,all,db,0.16,75
+4.1a,all,db,0.13,55
 
 4a,iden,umap,0.1,10
 4a,iden,db,0.19, 75
 4a,epi,umap,0.1,10
 4a,epi,db,0.18, 80
 4a,all,umap,0.1,10
-4a,all,db, 0.16,55
+4a,all,db, 0.14,55
 
