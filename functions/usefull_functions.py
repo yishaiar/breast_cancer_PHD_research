@@ -25,6 +25,54 @@ def removeFeatures(dict,remove_features =['']):
         dict[key] = list_
   return dict
 
+def createAdjustedDataset(k,j,dbscanData,labels,core_samples_mask,settings,figname = '',
+                          clustersToRemove=[],limits = (None,None,None,None),drawFunc = None,
+                          contained_samples = False
+                          ):
+    # filter by clusters to remove and filter by dbscanData limits
+    xMin, xMax,yMin, yMax = limits
+
+    # filter by clusters to remove
+    idx1 = ~np.zeros_like(labels).astype(bool)
+    for cluster in clustersToRemove:
+        idx1 *= ~(labels == cluster)
+
+    # filter by dbscanData
+    xMin = xMin if xMin is not None else np.min(dbscanData[:,0])
+    xMax = xMax if xMax is not None else np.max(dbscanData[:,0])
+    yMin = yMin if yMin is not None else np.min(dbscanData[:,1])
+    yMax = yMax if yMax is not None else np.max(dbscanData[:,1])
+    idx2 = (dbscanData[:,0]<=xMax)*(dbscanData[:,0]>=xMin)*(dbscanData[:,1]<=yMax)*(dbscanData[:,1]>=yMin)
+
+    # indexes to keep
+    idx3 = idx1*idx2
+    idx = np.asarray([i for i, j in enumerate(idx3) if j])
+    idx4 = np.asarray([i for i, j in enumerate(idx3) if not j])
+    print (f'k{j}; samples = {len(idx)}; saved to file')
+
+
+
+    _ = drawFunc(dbscanData[idx], labels[idx], core_samples_mask[idx], settings, figname='1_'+figname+'dbscan_adjusted')
+    _ = drawFunc(dbscanData[idx4], labels[idx4], core_samples_mask[idx4], settings, figname='1_'+figname+'dbscan_adjusted_stroma')
+
+    
+    indArr = {}
+    # index according to original data
+    newK = k.copy().reset_index(drop = True).loc[idx]
+    ind = np.asarray(newK['ind'].copy()) 
+    kInd = f'{j}a'
+    indArr[kInd]=ind
+
+    
+    if contained_samples:# # create adjusted for all contained samples
+        for kInd in newK['samp'].unique():
+            newK_ = newK[newK['samp']==kInd].copy()
+            ind = np.asarray(newK_['ind'].copy())
+            kInd = int(kInd) if kInd%1==0.0 else float(kInd);kInd = f'{kInd}a'
+            indArr[kInd]=ind
+    return indArr,idx,idx4
+
+    
 
 
 
@@ -40,9 +88,9 @@ def pickle_dump(file_name, dict,dir_data):
     
 def pickle_load(file_name,dir_data):    
   with open(dir_data  + file_name + '.p', 'rb') as f:
-      dict = pickle.load(f)
+      dict_ = pickle.load(f)
       print(file_name,'; loaded from file')
-      return dict
+      return dict_
   
   
 def folderExists(path):
@@ -153,7 +201,9 @@ def subsample_k(K,kInd,dir_data, ind = 'ind',n=500):
            idx = pickle_load(f"{kInd}_subsample_indexes",dir_data)
            print (f'original size: {lenK}, new size: {idx.shape[0]} indexes loaded from file')
         newIdx = [ K.index[K[ind]==i][0] for i in idx ]#else print(i) 
-        # newIdx = [ K.index[K.Ind==i][0] if (i in K.Ind) else print(i) for i in idx ]#else print(i) 
+        # newIdx = [ K.index[K.ind==i][0] if (i in K.ind) else print(i) for i in idx ]#else print(i) 
+        # newIdx = [ K.index[K.ind==i][0] if (i in K.ind) else np.nan for i in idx ]
+
 
         if len(newIdx) != n:
             print ('size error')
@@ -202,7 +252,9 @@ def createAppendDataset(k,namesAll,kInd,uncommonFeatures ):
     # unitest
     arr=[]
     for i in kInd:
+        i = i[:-1] if 'f' in  i else i
         i = i[:-1] if 'a' in  i else i
+        
 
         check = k_append.loc[k_append[k_append['samp']==float(i)].index[0]].isna()
         check = list(check[check].index)

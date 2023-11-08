@@ -76,13 +76,19 @@ def kmeans_fit(data,n_clusters=3,n_init=10,max_iter=300):
     return np.asarray(kmeans.labels_)
 # labels = kmeans_fit(data = scaled_features,n_clusters=3,n_init=10,max_iter=300)
 
-def highVal_ind(k,f,labels,max_ = True):
+def highClust_ind(k,labels,max_ = True):#index of cluster with highest mean
+    # find label of cluster with highest mean
     arr = []
     for l in np.unique(labels):
-        arr.append(k[ f].loc[[i for i,label in zip(k.index,labels) if label==l]].mean())
+        arr.append(k.loc[[i for i,label in zip(k.index,labels) if label==l]].mean())
     wantedLabel = np.argmax(arr) if max_ else np.argmin(arr)
-    # loaction in original index (k isnot reseted)
-    ind = [i for i,label in zip(k.index,labels) if label==wantedLabel]
-    # loaction in new index (according to labels of new index)
-    ind2 = [i for i,j in enumerate(labels) if j==wantedLabel]
-    return ind,ind2
+
+
+    # loaction in original k index (this is sometimes a k subset, and index is not reseted i.e k.index param is not consecutive numbers
+    ind1 = k.index[labels==wantedLabel]
+    # new index: the index of the k subset (not original k) i.e index of consecutive numbers with a smaller N size
+    # loaction in new index (according to labels of new index) - used take from list in 
+    ind2 = np.arange(len(labels))[labels==wantedLabel]
+    return ind1,ind2
+
+# 

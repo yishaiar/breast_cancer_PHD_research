@@ -3,6 +3,38 @@ import numpy as np
 import pandas as pd
 from usefull_functions import *
 
+
+def fit_info(k,dir_indexes,keepCols = ['ind','samp']):
+    # keepCols : features we want to keep although they are not fitted (dropped from the anchore)
+    # there are 3  type of features: fit_cols - mutual features (in both fit_from and fit_into), 
+    #                                 dropped_cols - features that are only in fit_from or only in fit_into, 
+    #                                 keepCols - index features without transforming them
+
+    
+    # to fit theres an anchor from initial space (fit_from) and a target space (fit_into); same sample express in both those spaces (cytof batches)
+    # for each anchore get subset to use un fit (constant subset using an index file) 
+    # load subsets:
+    fit_from = [subsample_k(k['4'].copy(),'4_fit',dir_indexes,n=20000).drop(keepCols,axis = 1),
+                subsample_k(k['7.1'].copy(),'7.1_fit',dir_indexes,n=20000).drop(keepCols,axis = 1),
+                subsample_k(k['8.1'].copy(),'8.1_fit',dir_indexes,n=20000).drop(keepCols,axis = 1),
+            ]
+    fit_into = [subsample_k(k['4.1'].copy(),'4.1_fit',dir_indexes,n=20000).drop(keepCols,axis = 1),
+                subsample_k(k['7'].copy(),'7_fit',dir_indexes,n=20000).drop(keepCols,axis = 1),
+                subsample_k(k['8'].copy(),'8_fit',dir_indexes,n=20000).drop(keepCols,axis = 1)
+
+            ]
+
+    fit_cols_ = [[col for col in fit_into[i].columns if col in fit_from[i].columns] for i in range(len(fit_from))];
+    
+
+
+    dropped_cols_ = [[col for col in fit_from[i].columns if col not in fit_cols_[i] ] + \
+                    [col for col in fit_cols_[i]  if col not in fit_from[i].columns] \
+                    for i in range(len(fit_from))]
+                    # + [col for col in  cols_ + keepCols if col not in K.columns]
+    return fit_from, fit_into,fit_cols_,dropped_cols_
+
+
 def fit1(df1,df2):
     mu1 = df1.mean()
     sigma1 = df1.std()
@@ -110,6 +142,9 @@ def LinearFit(data1,data2,data3):
 
     data3_into_data1 = (data3/sigma2-mu2/sigma2 + mu1/sigma1)*sigma1
     return data3_into_data1
+
+def doNothing(data1,data2,data3):
+    return data3
 
 def MixedFit(data1,data2,data3):
 

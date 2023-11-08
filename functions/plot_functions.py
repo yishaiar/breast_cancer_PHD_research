@@ -207,11 +207,11 @@ def drawUMAPbySample(X_2d,k, ind,labels,settings,colors = None,backgroundColor =
 def saveCsv(dir_plots,name,arr):
     with open(dir_plots+name+'.csv', 'a') as f:
         w= writer(f)
-        for i,m in arr:
-            for j ,k in m:
-                row = [f'{name}: cluster {i} sample {j} = {k}']
+        for clust,data in arr:
+            for samp ,p in data:
+                row = [f'{name}: cluster {clust} sample {samp} = {p}']
                 w.writerow(row)
-                print(f'{name}: cluster {i} sample {j} = {k}') 
+                print(f'{name}: cluster {clust} sample {samp} = {p}') 
 def ClustFeaturePercentage(cluster,feature,feature_val):
     # for f1 in np.unique(k[feature1]):
     #     print(f'{feature1} number: {f1}')
@@ -223,7 +223,7 @@ def ClustFeaturePercentage(cluster,feature,feature_val):
     return percentage     
 def ClustPercentageBySample(k_cluster,M,names=None):
     percentage_arr =[]
-    arr = np.sort(np.unique(k_cluster[M]).astype(float))
+    arr = np.sort(np.unique(k_cluster[M]).astype(float))# return only existing values in the data (0% not included)
     if names is None:
         names = arr
     else:
@@ -235,13 +235,23 @@ def ClustPercentageBySample(k_cluster,M,names=None):
         percentage = ClustFeaturePercentage(k_cluster,M,arr[i])
         percentage_arr.append([names[i],np.round(percentage,2)]) 
     return percentage_arr
+def get_colors():
+
+    hex = ['e6194b', '3cb44b', 'ffe119', '4363d8', 'f58231', '911eb4', '46f0f0', 'f032e6', 
+        'bcf60c', 'fabebe', '008080', 'e6beff', '9a6324', 'fffac8', '800000', 'aaffc3',
+            '808000', 'ffd8b1', '000075', '808080', ]
+    colors = np.asarray([hex_to_rgba(h) for h in hex])
+    return colors
 def drawDbscan(X,labels,core_samples_mask,settings,title='',figname='',figsize=(6, 5)):
-
-
-
-    cmap = plt.get_cmap('Set2')#Set2, twilight, PuOr and cividis.
     unique_labels = np.sort(np.unique(labels))
-    colors = [(0, 0, 0, 1)]+ [cmap(each) for each in np.linspace(0, 1, len(unique_labels)-1)]# noise (-1 label) is black color
+    cmap = get_colors()
+    if len(unique_labels)>cmap.shape[0]: #too many clusters for the preselected colors map
+       #cmap of Set2, twilight, PuOr and cividis.
+        cmap = [plt.get_cmap('Set2')(each) for each in np.linspace(0, 1, len(unique_labels)-1)]
+        # colors = [(0, 0, 0, 1)]+ [cmap(each) for each in np.linspace(0, 1, len(unique_labels)-1)]# noise (-1 label) is black color
+    # else: cmap=cmap
+    colors = [(0, 0, 0, 1)]+[cmap[each] for each in range(len(unique_labels)-1)]# noise (-1 label) is black color
+    
 
     fig,axs = plt.subplots(1,figsize = figsize)
     axs.set_title(title)
@@ -284,10 +294,11 @@ def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname
             fig_num = figures[i] - 1
 
             try: #if K doesnt contain the feature pass..
-              func(K[M],color=color,label='Tumor ' + i,ax = ax[fig_num])
+              ax_ = ax if numSubplots==1 else ax[fig_num] 
+              func(K[M],color=color,label='Tumor ' + i,ax = ax_)
               # sns.kdeplot(K2[M],c='g',label='Tumor 2')
-              ax[fig_num].title.set_text(title)
-              ax[fig_num].legend()
+              ax_.title.set_text(title)
+              ax_.legend()
             #   ------------------------
             #   ystart, yend = ax[fig_num].get_ylim()
             #   xstart, xend = ax[fig_num].get_xlim() 
@@ -330,7 +341,15 @@ def HeatMap(k_clust,names,settings,clustFeature='Clust',
             title = '',figname = '' ):
     # dir,show,saveSVG = settings
     # k_clust = K[K.Clust!=-1]
-    Mat=k_clust.groupby(by=clustFeature).mean()[names]
+    Mat = k_clust.groupby(by=clustFeature).mean(numeric_only=True)[names]
+    Mat = Mat.copy().loc[np.sort(Mat.index)]
+    
+    if clustFeature == 'samp':
+        Mat.drop([i for i in Mat.index if '.1'  in str(i)],inplace=True)
+        # Mat.index = [int(i) for i in Mat.index]
+        # dropInd = [i for i in Mat.index if '.1'  in str(i)]
+
+
     # Mat = Mat[names]
     # csv
     Mat.to_csv(settings[0]+figname+'.csv')
@@ -345,12 +364,13 @@ def HeatMap(k_clust,names,settings,clustFeature='Clust',
     
     plotHeatMap(Mat,title,settings,figname,figsize )
 
-def plotHeatMap(Mat,title,settings,figname,figsize = (10, 10)):    
+def plotHeatMap(Mat,title,settings,figname,figsize = (10, 10)):    #plot heatmap or clustermap or corrmap orr comfusion matrix
     amin=Mat.min().min()
     amax=Mat.max().max()
 
     # vmin,vmax - defines the  colormap dynamic range
     g=sns.clustermap(Mat.T,cmap=plt.cm.seismic,vmin=amin,vmax=amax,
+                    row_cluster=True,col_cluster=False,
                     # figsize=(10,20), annot_kws={"size":8}, center=0,
                     figsize=figsize, annot_kws={"size":8}, center=0,
                     annot=True, linewidths=1,linecolor='k',)
@@ -358,6 +378,7 @@ def plotHeatMap(Mat,title,settings,figname,figsize = (10, 10)):
     
     
     dir,show,saveSVG = settings
+
     plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
     if saveSVG:
         plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
@@ -567,22 +588,19 @@ def hex_to_rgba(hex):
     return RGB
 
 
-def draw_kmeans(data,labels,settings,names=[],title='',figname='',figsize=(6, 5),backgroundColor = backgroundColor_(),crossLabels = [None,None,None]):
+def draw_clusters(data,labels,settings,names=[],title='',figname='',figsize=(6, 5),backgroundColor = backgroundColor_(),crossLabels = [None,None,None]):
     labels = np.asarray(labels)
     unique_labels = np.unique(labels)
-    colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, max(len(unique_labels),np.max(unique_labels)+1))]
-
-    # colors = cm.rainbow(np.linspace(0, 1, np.unique(labels).shape[0]))
-    cc  = np.asarray([ colors[i] for i in labels])
     if len(names)==0:
         names = unique_labels
-
-    names_ = np.empty(labels.shape,dtype=object)
-    for i in unique_labels:
+    for i in unique_labels:#add probabiliy info
         p = np.sum(labels==i)/len(labels)
         n = f'{names[i]} ({np.round(p*100,2)}%)'
-        names_[labels==i] = n
-        
+        names[i] = n
+    colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, max(len(unique_labels),np.max(unique_labels)+1))]
+
+
+
 
  
     data = np.asarray(data)
@@ -592,31 +610,23 @@ def draw_kmeans(data,labels,settings,names=[],title='',figname='',figsize=(6, 5)
     # plt.figure(figsize = figsize)
     axs.set_title(title)
 
-    for i in unique_labels:
+    for i ,color in zip(unique_labels,colors):
         ind = labels==i
+
+        axs.plot(data[ind, 0],data[ind, 1], 'o', markerfacecolor=tuple(color),
+        markeredgecolor='k', markersize=14,
+        # add label for legend
+        # label = names_[ind][0],
+        label = names[i],)
+
         #
-        axs.scatter(data[ind, 0],data[ind, 1],c= cc[ind], label = names_[ind][0],\
-                    s=2,alpha = 0.5)#label = labels[ind]
+        # axs.scatter(data[ind, 0],data[ind, 1],c= cc[ind], label = names_[ind][0],)
+                    # s=2,alpha = 0.5)#label = labels[ind]
     axs.legend(fontsize=15, title_fontsize='40',
         loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=2)
     axs.set_facecolor(backgroundColor)#xkcd:salmon
     
-    if crossLabels[0] is not None:
-        ind1 = crossLabels[0]==crossLabels[1]
-        if crossLabels[-1] is not None:
-            ind1 *= (labels==crossLabels[-1])
-
-            p = np.sum(ind1)/np.sum(crossLabels[0]==crossLabels[1])
-            print( f'{names[crossLabels[-1]]} ({np.round(p*100,2)}%)')
-        axs.scatter(data[ind1, 0],data[ind1, 1],c= 'black' ,s=2)#label = labels[ind]
-            
-
-
-        # for i in unique_labels:
-        #     ind1 = ind*(labels==i)
-        #     ax = axs.copy(); fig1 = fig.copy()
-        #     ax.scatter(data[ind1, 0],data[ind1, 1],c= 'black',marker = 'x' )
-        #     figSettings(fig1,figname,settings)
+ 
         
 
 
