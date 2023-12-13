@@ -242,42 +242,74 @@ def get_colors():
             '808000', 'ffd8b1', '000075', '808080', ]
     colors = np.asarray([hex_to_rgba(h) for h in hex])
     return colors
-def drawDbscan(X,labels,core_samples_mask,settings,title='',figname='',figsize=(6, 5)):
-    unique_labels = np.sort(np.unique(labels))
-    cmap = get_colors()
-    if len(unique_labels)>cmap.shape[0]: #too many clusters for the preselected colors map
-       #cmap of Set2, twilight, PuOr and cividis.
-        cmap = [plt.get_cmap('Set2')(each) for each in np.linspace(0, 1, len(unique_labels)-1)]
-        # colors = [(0, 0, 0, 1)]+ [cmap(each) for each in np.linspace(0, 1, len(unique_labels)-1)]# noise (-1 label) is black color
-    # else: cmap=cmap
-    colors = [(0, 0, 0, 1)]+[cmap[each] for each in range(len(unique_labels)-1)]# noise (-1 label) is black color
+from matplotlib.collections import PathCollection
+from matplotlib.legend_handler import HandlerPathCollection, HandlerLine2D
+def drawDbscan(labels,dbData,settings,colors = None,title='',figname='',figsize=(6, 5)):
+    X,core_samples_mask = dbData
+
     
 
     fig,axs = plt.subplots(1,figsize = figsize)
     axs.set_title(title)
-
-    for label, color in zip(unique_labels, colors):
+    alpha = 1.0
+    for label, color in zip(np.sort(np.unique(labels)), colors):
         class_member_mask = (labels == label)
         
         xy = X[class_member_mask & core_samples_mask]
         axs.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(color),
-                markeredgecolor='k', markersize=14,
-                # add label for legend
+                markeredgecolor='k', 
+                markersize=14,
+                
+                # alpha = alpha,  
+                # add label for legend  
                 label = label,)
         
         # cluster edges with smaller marker size for finess
         xy = X[class_member_mask & ~core_samples_mask]
         axs.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(color),
-                 markeredgecolor='k', markersize=6)
-    
+                 markeredgecolor='k', 
+                 markersize=6,
+                #  alpha = alpha,  
+                 )
+        
+
+
+    # def update(handle, orig):
+    #     handle.update_from(orig)
+    #     handle.set_alpha(1)
+        
+    def update(handle, orig):
+        handle.update_from(orig)
+        handle.set_alpha(1)
+
+    axs.legend(handler_map={PathCollection : HandlerPathCollection(update_func= update),
+                            plt.Line2D : HandlerLine2D(update_func = update)})
+
     axs.legend(fontsize=15, title_fontsize='40',
-        loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=5)
-       
+        loc='upper center', 
+        bbox_to_anchor=(0.5, -0.05),
+        # fancybox=True, 
+        # shadow=False, 
+        ncol=5,)
+        # handler_map={PathCollection : HandlerPathCollection(update_func= update)},#update legend alpha
+        # )
+
+
 
     figSettings(fig,figname,settings)
-    return colors
+    # return colors
               
-            
+def cluster_colors(labels):
+    unique_labels = np.sort(np.unique(labels))
+    cmap = get_colors()
+    if len(unique_labels)-1>cmap.shape[0]: #too many clusters for the preselected colors map
+    #cmap of Set2, twilight, PuOr and cividis.
+        cmap = [plt.get_cmap('Set2')(each) for each in np.linspace(0, 1, len(unique_labels)-1)]
+
+    # cmap = [plt.get_cmap('PuOr')(each) for each in np.linspace(0, 1, len(unique_labels)-1)]
+
+    colors = [(0, 0, 0, 1)]+[cmap[each] for each in range(len(unique_labels)-1)]# noise (-1 label) is black color
+    return colors           
 
     
 import random   
@@ -346,6 +378,7 @@ def HeatMap(k_clust,names,settings,clustFeature='Clust',
     
     if clustFeature == 'samp':
         Mat.drop([i for i in Mat.index if '.1'  in str(i)],inplace=True)
+        Mat.drop([i for i in Mat.index if '11'  in str(i)],inplace=True)
         # Mat.index = [int(i) for i in Mat.index]
         # dropInd = [i for i in Mat.index if '.1'  in str(i)]
 

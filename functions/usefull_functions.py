@@ -262,24 +262,34 @@ def createAppendDataset(k,namesAll,kInd,uncommonFeatures ):
        
     if len (arr)>0:
         print(f'fields to remove from df: {arr}')
+
+    # DROP NULL COLUMNS; verify that all columns are mutual otherwise drop
+    print(k_append.dropna(axis=1, how='all')[namesAll['NamesAll'].copy()].columns ==namesAll['NamesAll'].copy())
+
+
     return k_append,names
 
 
 
 
-def getValsCsv(dir_data,vars,lensize = 10,fname = '_params.csv' ): 
-    newvars = [var + (lensize-len(var))*' ' for var in vars]
+def getValsCsv(dir_data,vars,lensize = 10,fname = '_params.csv',vals = [] ): 
+    if len(vals)>0:
+        val1,val2 = vals
+    else:
+        newvars = [var + (lensize-len(var))*' ' for var in vars]
 
-    df = pd.read_csv(dir_data+fname, sep =',',comment='#').astype(str)
-    for col in df.columns:
-        df[col] = [var + (lensize-len(var))*' ' for var in df[col]]
+        df = pd.read_csv(dir_data+fname, sep =',',comment='#').astype(str)
+        for col in df.columns:
+            df[col] = [var + (lensize-len(var))*' ' for var in df[col]]
+        
     
- 
-    for val, field in zip(newvars,['var','alg','samp']):
-        df = df[df[field]==val].copy().drop(field,axis = 1)
-    val1,val2 = df.values.tolist()[0]
-    # print(val1,val2 )
-    return float(val1),int(float(val2) )
+        for val, field in zip(newvars,['var','alg','samp']):
+            df = df[df[field]==val].copy().drop(field,axis = 1)
+        val1,val2 = df.values.tolist()[0]
+        val1,val2 = float(val1),int(float(val2) )
+    print(val1,val2)
+    return val1,val2
+
 import json
 def getJ(j,group_ind,address,args):
     # if thers an external program runnig script (saving a json file) - take it

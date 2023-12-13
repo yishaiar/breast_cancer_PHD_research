@@ -29,12 +29,11 @@ def calculate_dbscan(X,ind,eps=0.1,min_samples=50):
             % silhouette_score(X, labels))
     except:
       print('Silhouette impossible; only 1 cluster recognized')
-    # add the index of each point in k to the corresoponding labels
-    # labelsWithInd = np.zeros((len(labels),2)).astype(int)
-    # labelsWithInd[ :,1] = labels
-    # labelsWithInd[ :,0] = ind
-    # return X,labels,core_samples_mask,labelsWithInd
-    return X,labels,core_samples_mask
+
+
+
+    return labels, [X, core_samples_mask]
+
 
 def calculate_umap(data,n_neighbors=15, min_dist=0.1, n_components=2, metric='euclidean', rstate=42,dens=False):
     fit = UMAP(

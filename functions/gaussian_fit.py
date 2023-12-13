@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from usefull_functions import figSettings
+from plot_functions import hex_to_rgba
 
 # create data
 def calcHist(p,bins):
@@ -32,7 +34,7 @@ def gauss(x,mu,sigma,A):
 def bimodal(x,mu1,sigma1,A1,mu2,sigma2,A2):
     return gauss(x,mu1,sigma1,A1)+gauss(x,mu2,sigma2,A2)
 
-def bimodal_minima(x,y, maxfev=5000,plot=False):
+def bimodal_minima(x,y, maxfev=5000,settings = None):
     # estimate gausians with bimodal fit
     params,cov=curve_fit(bimodal,x,y,maxfev=maxfev)
     sigma = np.sqrt(np.diag(cov))
@@ -47,16 +49,56 @@ def bimodal_minima(x,y, maxfev=5000,plot=False):
     x0 = x[lim[0]:lim[1]][c]
     print (f'cutoff is at {x0}')
 
-    if plot:
-        plt.figure()
-        plt.plot(x,bimodal(x,*params),color='red',lw=3,label='bimodal')
-        plt.plot(x,d1,color='blue',lw=3,label='gausian1')
-        plt.plot(x,d2,color='green',lw=3,label='gausian2')
-        # # plt.scatter(x0,yy[c],color='red')
-        plt.axvline(x=x0,label='minima',color='red')
-        plt.plot(x,y,color='black',lw=1,label='data')
+    # if plot:
 
-    return x0
+    fig,axs = plt.subplots(1,figsize=(6, 5))
+    axs.set_title('bimodal cutoff (gassian fit)')
+
+    axs.axvline(x=x0,label='minima',color='red')
+    ind = x>x0
+    x1,y1 = x[ind],y[ind]
+    x2,y2 = x[~ind],y[~ind]
+    # axs.plot(x,y,color='black',lw=1,label='data')
+    c1,c2 = hex_to_rgba('3f78c1'),hex_to_rgba('b33d90')
+    axs.plot(x1,y1,color=c1,lw=1,label='data')
+    axs.plot(x2,y2,color=c2,lw=1,label='data')
+    figSettings(fig,figname = 'bimodal_cutoff',settings = settings)
+
+    axs.plot(x,d1,color='blue',lw=3,label='gausian1')
+    axs.plot(x,d2,color='green',lw=3,label='gausian2')
+    figSettings(fig,figname = 'bimodal_cutoff2',settings = settings)
+
+
+
+    return x0 
 # orig_params=(1,.2,300,2,.2,125)#[mean1,std1,A1,mean2,std2,A2]
 # x,y,_,_ = gausianHistData(orig_params)
 # x0 = bimodal_minima(x,y,plot=True)
+
+
+# # -------------------------------
+# if '.2a' in j and group_ind == 3:
+#     labels = None# verify that the labels from previous are not used
+#     if '_arcsinh' in j:
+#         from gaussian_fit import *
+
+
+#         x, y = sns.kdeplot(k['pRB'].copy(),label='label').lines[0].get_data()
+#         y =  np.asarray(y)/.2 if '18.2' in j else  np.asarray(y)**.5 #highlight the gaussians diffrence
+#         # plt.plot(x,y)
+
+#         cutoff = bimodal_minima(x,y,maxfev = 5000,settings =settings)
+
+
+#         labels = np.zeros(len(k)).astype(int)
+#         labels[k['pRB']>cutoff] = 1
+
+#         pickle_dump(f'Labels_{fname}', labels, dir_data)
+        
+#     try:labels = pickle_load(f'Labels_samp_arcsinh{j}_CellCycle_', dir_data) 
+#     except:pass
+#     names = ['pRB_low','pRB_high']
+#     colors = draw_clusters(data = umapData.copy(),labels = labels,title='cutoff clusters',figname='cutoff_clusters',settings = settings,names =names)   
+
+
+#     k['Clust'] = [names[l] for l in labels]#labels
