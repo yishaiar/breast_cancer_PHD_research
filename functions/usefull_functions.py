@@ -93,11 +93,12 @@ def pickle_load(file_name,dir_data):
       return dict_
   
   
-def folderExists(path):
+def folderExists(path,prompt = True):
   if not os.path.exists(path):
    # Create a new directory because it does not exist
    os.makedirs(path)
-   print("The new directory is created!")
+   if prompt:
+    print("The new directory is created!")
    
    
 def test_fetures(name):

@@ -369,56 +369,42 @@ def scatter(k,f1,f2,name,figname,settings):
         plt.close()
      
 
-def HeatMap(k_clust,names,settings,clustFeature='Clust',
-            title = '',figname = '' ):
-    # dir,show,saveSVG = settings
-    # k_clust = K[K.Clust!=-1]
+def HeatMap(k_clust,names,settings,clustFeature='Clust',title = '',figname = '' ,csv = True,figure = True,amin = None,amax = None,rot_tentogram = False):
     Mat = k_clust.groupby(by=clustFeature).mean(numeric_only=True)[names]
     Mat = Mat.copy().loc[np.sort(Mat.index)]
     
     if clustFeature == 'samp':
         Mat.drop([i for i in Mat.index if '.1'  in str(i)],inplace=True)
-        Mat.drop([i for i in Mat.index if '11'  in str(i)],inplace=True)
-        # Mat.index = [int(i) for i in Mat.index]
-        # dropInd = [i for i in Mat.index if '.1'  in str(i)]
 
 
-    # Mat = Mat[names]
-    # csv
-    Mat.to_csv(settings[0]+figname+'.csv')
-    # heatmap figure
-    matXsize = int(np.ceil(len(Mat.index)*0.7))
-    matYsize = int(np.ceil(len(Mat.columns)*0.7))
-    if matXsize<10:
-        matXsize = 10
-    if matYsize<10:
-        matYsize = 10
-    figsize = (matXsize, matYsize)
-    
-    plotHeatMap(Mat,title,settings,figname,figsize )
 
-def plotHeatMap(Mat,title,settings,figname,figsize = (10, 10)):    #plot heatmap or clustermap or corrmap orr comfusion matrix
-    amin=Mat.min().min()
-    amax=Mat.max().max()
+    if csv:
+        Mat.to_csv(settings[0]+figname+'.csv')
+    if figure:
+        plotHeatMap(Mat,title,settings,figname,amin = amin,amax = amax,rot_tentogram = rot_tentogram)
+
+
+def plotHeatMap(Mat,title,settings,figname,amin = None,amax = None,rot_tentogram = False):    #plot heatmap or clustermap or corrmap orr comfusion matrix
+    figsize = (max(10, int(np.ceil(len(Mat.index)*0.7))), max(10, int(np.ceil(len(Mat.columns)*0.7))))
+    # fig,axs = plt.subplots(1,figsize=(10, 10))
+
+
+    amin=Mat.min().min() if amin is None else amin
+    amax=Mat.max().max() if amax is None else amax
+    if rot_tentogram:
+        row_cluster,col_cluster=True,False,
+    else:    
+        row_cluster,col_cluster=False,True,
 
     # vmin,vmax - defines the  colormap dynamic range
-    g=sns.clustermap(Mat.T,cmap=plt.cm.seismic,vmin=amin,vmax=amax,
-                    row_cluster=True,col_cluster=False,
-                    # figsize=(10,20), annot_kws={"size":8}, center=0,
+    g = sns.clustermap(Mat.T,cmap=plt.cm.seismic,vmin=amin,vmax=amax,
+                    row_cluster=row_cluster,col_cluster=col_cluster,
                     figsize=figsize, annot_kws={"size":8}, center=0,
-                    annot=True, linewidths=1,linecolor='k',)
+                    annot=True, linewidths=1,linecolor='k')
     g.ax_col_dendrogram.set_title(title) 
-    
-    
-    dir,show,saveSVG = settings
+    plt.show()
+    figSettings(g,figname,settings)
 
-    plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
-    if saveSVG:
-        plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
-    if show:
-        plt.show()
-    else:
-        plt.close()
    
     
     
