@@ -276,6 +276,7 @@ def createAppendDataset(k,namesAll,kInd,uncommonFeatures ):
 def getValsCsv(dir_data,vars,lensize = 10,fname = '_params.csv',vals = [] ): 
     if len(vals)>0:
         val1,val2 = vals
+     
     else:
         newvars = [var + (lensize-len(var))*' ' for var in vars]
 
@@ -286,8 +287,14 @@ def getValsCsv(dir_data,vars,lensize = 10,fname = '_params.csv',vals = [] ):
     
         for val, field in zip(newvars,['var','alg','samp']):
             df = df[df[field]==val].copy().drop(field,axis = 1)
-        val1,val2 = df.values.tolist()[0]
-        val1,val2 = float(val1),int(float(val2) )
+        if len(df)>0:       
+            val1,val2 = df.values.tolist()[0]
+            val1,val2 = float(val1),int(float(val2) )
+        else:
+            print('value not in csv')
+            if vars[1]=='umap':
+                val1,val2 = 0.1,10
+
     print(val1,val2)
     return val1,val2
 
@@ -331,16 +338,16 @@ def getJ(j,group_ind,address,args):
 
 
 def figSettings(fig,figname,settings):
-    if settings is not None:
-        dir,show,saveSVG = settings
-    else: #none
-        import os
-        dir,show,saveSVG = os.getcwd(), True,False
 
-    fig.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
-    if saveSVG:
-        fig.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
-    if show:
+    if settings is None:#none
+        import os
+        settings = {'dir_plots':os.getcwd(), 'show':True, 'saveSVG':False}
+    # else:pass
+    format = 'png' if not settings['saveSVG'] else 'svg'
+
+    fig.savefig(settings['dir_plots']+figname+'.'+format, format=format, bbox_inches="tight", pad_inches=0.2)
+
+    if settings['show']:
         plt.show()
     else:
         plt.close(fig)

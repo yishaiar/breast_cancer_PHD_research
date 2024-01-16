@@ -34,7 +34,7 @@ def gauss(x,mu,sigma,A):
 def bimodal(x,mu1,sigma1,A1,mu2,sigma2,A2):
     return gauss(x,mu1,sigma1,A1)+gauss(x,mu2,sigma2,A2)
 
-def bimodal_minima(x,y, maxfev=5000,settings = None):
+def bimodal_minima(x,y,manual_minima = None, maxfev=5000,settings = None):
     # estimate gausians with bimodal fit
     params,cov=curve_fit(bimodal,x,y,maxfev=maxfev)
     sigma = np.sqrt(np.diag(cov))
@@ -46,7 +46,7 @@ def bimodal_minima(x,y, maxfev=5000,settings = None):
 
     # find index of minima betweeb maximas (bimodal minima)
     c = np.argmin(np.abs(d1[lim[0]:lim[1]]-d2[lim[0]:lim[1]]))
-    x0 = x[lim[0]:lim[1]][c]
+    x0 = x[lim[0]:lim[1]][c] if manual_minima is None else manual_minima
     print (f'cutoff is at {x0}')
 
     # if plot:

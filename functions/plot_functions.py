@@ -80,7 +80,13 @@ def drawSingleUMAP (X_2d, intensity,name,settings,title = '',Figname = '',limits
         if limits[0] is not  None:
             axs.set_xlim(limits[0], limits[2])  
             axs.set_ylim(limits[1], limits[3])
- 
+        else:
+            axs.set_yticklabels([])
+            axs.set_xticklabels([])
+        
+        axs.set_ylabel('umap2')
+        axs.set_xlabel('umap1')
+
         axs.set_facecolor(backgroundColor)
         vmax=intensity.quantile(0.99);vmin=intensity.quantile(0.01)
         axs.scatter(X_2d[:,0],X_2d[:,1],s=2,c=intensity, cmap=plt.cm.seismic,
@@ -314,10 +320,12 @@ def cluster_colors(labels):
     
 import random   
 
-def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname = '',numSubplots = 4 ):
-    
-    colors = cm.rainbow(np.linspace(0, 1, len (figures.keys())))
-    random.shuffle(colors)
+def plot_hist(k,NamesAll,figures,settings,func = sns.kdeplot ,title = '',Figname = '',numSubplots = 4 ,colors=None):
+    # pRB+ = 3f78c1; pRB- = b33d90
+    if colors is None:
+        colors = cm.rainbow(np.linspace(0, 1, len (figures.keys()))) 
+        random.shuffle(colors)
+    else: colors = [colors[i] for i,_ in enumerate(figures.keys())]
     for M in NamesAll: 
         fig, ax = plt.subplots(1,numSubplots,figsize=(int(4*numSubplots),4))
         # x1 =np.inf;x2 =-np.inf;y1 =np.inf;y2 =-np.inf;
@@ -369,17 +377,17 @@ def scatter(k,f1,f2,name,figname,settings):
         plt.close()
      
 
-def HeatMap(k_clust,names,settings,clustFeature='Clust',title = '',figname = '' ,csv = True,figure = True,amin = None,amax = None,rot_tentogram = False):
-    Mat = k_clust.groupby(by=clustFeature).mean(numeric_only=True)[names]
+def HeatMap(K,labels,features,settings,labels_type=None,title = '',figname = '' ,csv = True,figure = True,amin = None,amax = None,rot_tentogram = False):
+    Mat = K.groupby(by=labels).mean(numeric_only=True)[features]
     Mat = Mat.copy().loc[np.sort(Mat.index)]
     
-    if clustFeature == 'samp':
+    if labels_type == 'samp':
         Mat.drop([i for i in Mat.index if '.1'  in str(i)],inplace=True)
 
 
 
     if csv:
-        Mat.to_csv(settings[0]+figname+'.csv')
+        Mat.to_csv(settings['dir_plots']+figname+'.csv')
     if figure:
         plotHeatMap(Mat,title,settings,figname,amin = amin,amax = amax,rot_tentogram = rot_tentogram)
 
