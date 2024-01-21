@@ -337,17 +337,3 @@ def getJ(j,group_ind,address,args):
 
 
 
-def figSettings(fig,figname,settings):
-
-    if settings is None:#none
-        import os
-        settings = {'dir_plots':os.getcwd(), 'show':True, 'saveSVG':False}
-    # else:pass
-    format = 'png' if not settings['saveSVG'] else 'svg'
-
-    fig.savefig(settings['dir_plots']+figname+'.'+format, format=format, bbox_inches="tight", pad_inches=0.2)
-
-    if settings['show']:
-        plt.show()
-    else:
-        plt.close(fig)

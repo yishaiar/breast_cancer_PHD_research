@@ -1,16 +1,21 @@
 import matplotlib.pyplot as plt
-import matplotlib as mpl
+import matplotlib
 import seaborn as sns
 import numpy as np
 import scanpy as sc
 import anndata
-from matplotlib.pyplot import rc_context
+# from matplotlib.pyplot import rc_context
 import pandas as pd
 import matplotlib.cm as cm
-import matplotlib.patches as mpatches
+# import matplotlib.patches as mpatches
 from usefull_functions import *
 from functions import *
 from csv import writer
+
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+plt.rcParams['pdf.fonttype'] = 42
+plt.rcParams['ps.fonttype'] = 42
 
 def backgroundColor_():
     return 'gainsboro' #gainsboro,lightgrey,whitesmoke
@@ -92,7 +97,7 @@ def drawSingleUMAP (X_2d, intensity,name,settings,title = '',Figname = '',limits
         axs.scatter(X_2d[:,0],X_2d[:,1],s=2,c=intensity, cmap=plt.cm.seismic,
                     vmax=vmax,vmin=vmin) 
    
-        norm = mpl.colors.Normalize(vmax=vmax,vmin=vmin)
+        norm = matplotlib.colors.Normalize(vmax=vmax,vmin=vmin)
         fig.colorbar(plt.cm.ScalarMappable(norm=norm,cmap=plt.cm.seismic),ax  = axs)
         axs.set_title(title+ " - "+name)        
         figname = Figname + name
@@ -125,7 +130,7 @@ def drawUMAPbySampleClust(X_2d, k,ind_cluster,M,settings,title = '',Figname = ''
     recs = []
     lgd=[]
     for i in range(0,arr.shape[0]):
-        recs.append(mpatches.Rectangle((0,0),1,1,fc=colors[i]))
+        recs.append(matplotlib.patches.Rectangle((0,0),1,1,fc=colors[i]))
         percentage = ClustFeaturePercentage(k[ind_cluster],M,arr[i])
         lgd.append(f'{arr[i]} = {np.round(percentage,2)}%')
         # lgd.append(f'{arr[i]}')
@@ -660,3 +665,20 @@ def draw_clusters(data,labels,settings,names=[],title='',figname='',figsize=(6, 
 
     figSettings(fig,figname,settings)
     return colors
+
+
+
+def figSettings(fig,figname,settings):
+
+    if settings is None:#none
+        import os
+        settings = {'dir_plots':os.getcwd(), 'show':True, 'saveSVG':False}
+    # else:pass
+    format = 'png' if not settings['saveSVG'] else 'svg'
+
+    fig.savefig(settings['dir_plots']+figname+'.'+format, format=format, bbox_inches="tight", pad_inches=0.2)
+
+    if settings['show']:
+        plt.show()
+    else:
+        plt.close(fig)
