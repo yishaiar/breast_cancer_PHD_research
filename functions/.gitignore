@@ -1,0 +1,14 @@
+## python cache:
+*.pyc
+*.png
+*.pdf
+
+*.svg
+/__pycache__
+/.ipynb_checkpoints
+/.vscode
+.DS_Store
+/.git
+
+/.venv
+
