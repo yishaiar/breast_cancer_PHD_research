@@ -2,11 +2,12 @@
 *.pyc
 *.png
 *.pdf
-*.p
+
 *.svg
 /__pycache__
 /.ipynb_checkpoints
 /.vscode
+.DS_Store
 /.git
 
 /.venv
