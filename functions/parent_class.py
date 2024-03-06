@@ -43,8 +43,8 @@ class Parent(object):
         with open(dir_data  + file_name + '.p', 'rb') as f:
             dict_ = pickle.load(f)
             # dict_ = pd.read_pickle(dir_data  + file_name + '.p')
-            print(file_name,'; loaded from file')
-            return dict_
+        print(file_name,'; loaded from file')
+        return dict_
         
     def figSettings(self,fig,figname):
 
