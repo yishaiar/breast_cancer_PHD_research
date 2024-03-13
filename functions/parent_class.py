@@ -38,7 +38,8 @@ class Parent(object):
     def pickle_dump(self,file_name, dict,dir_data):
         with open(dir_data+file_name+'.p', "wb") as f:
             pickle.dump(dict, f, protocol=pickle.HIGHEST_PROTOCOL)
-
+        print(file_name,'; saved into file')
+        
     def pickle_load(self,file_name,dir_data):    
         with open(dir_data  + file_name + '.p', 'rb') as f:
             dict_ = pickle.load(f)
