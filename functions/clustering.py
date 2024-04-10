@@ -86,6 +86,7 @@ class Clustering(Parent):
 
         labels,self.dbData,self.colors = [self.pickle_load(f'{f}_{self.figname}', self.dir_data) for f in ['dbLabels','dbData','dbColors']]
         self.labels = Series(labels)
+        
         return self.labels
     
     def get_clustering_colors(self,labels:Series,cmap: list =[])->list[tuple]:

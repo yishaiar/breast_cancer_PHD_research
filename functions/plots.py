@@ -81,12 +81,12 @@ class Plots(Parent):
         
         '''
         
-        if not colors:#colors not given by user - #cmap of Set2, twilight, PuOr and cividis.
-            colors = [plt.get_cmap('Set2')(each) for each in linspace(0, 1, len(labels.unique())+1)[:-1]]# avoid color 1 - cmap('set2)(1) gray same as background
+        if not colors or len(colors)<len(labels.unique()):#colors not given by user - #cmap of Set2, twilight, PuOr and cividis.
+            colors = [plt.get_cmap('Set2')(each) for each in linspace(0, 1, len(labels.unique())+1)]#[:-1]]# avoid color 1 - cmap('set2)(1) gray same as background
         if -1 in labels.unique() and len(colors)>=len(labels.unique()):# there is noise
             colors = [(0, 0, 0, 1)]+ colors[:-1]# noise (-1 label) is black color (since we are using sorted in the coloring afterward: noise -1 is first)
 
-        fig,axs = plt.subplots(1,figsize = (6, 5))
+        fig,axs = plt.subplots(1,figsize = (10, 5))
 
         axs.set_ylabel('umap2')
         axs.set_xlabel('umap1')
@@ -101,6 +101,7 @@ class Plots(Parent):
         for i,uniq in enumerate(sorted(labels.unique())):#uniq values(clusters in sample)
             ind = labels[labels==uniq].index
             axs.scatter(umapData['umap1'].loc[ind],umapData['umap2'].loc[ind], s=2,label = uniq,color = colors[i])#,c = cc[cluster],
+            # print(uniq)
 
 
         axs.legend(fontsize=15, title_fontsize='40',markerscale = 3.5,ncol=5, loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True,) #
