@@ -1,6 +1,7 @@
 # import pandas as pd
 from random import shuffle
 from numpy import newaxis
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -145,3 +146,16 @@ class Shap(Parent):
 #         plt.show()
 #     else:
 #         plt.close(fig)
+
+
+def predict_with_thresh_proba(data,model ,label_encoder = None,thresh_proba = 0.99,):
+    
+    proba,preds  = model.predict_proba(data), model.predict(data)
+    preds[proba[np.arange(len(proba)),preds]<thresh_proba] = len(np.unique(preds))#set all values that are not classified with high thresh to new class not in the original classes
+    if label_encoder is None:
+        return preds#don't inverse transform labels
+    labels = label_encoder.classes_
+    label_encoder.classes_ = np.append(labels, 'Noise')#add the new class to the label encoder - unclassified stays noise
+    preds =  label_encoder.inverse_transform(preds)
+    label_encoder.classes_ = labels#return the original classes to the label encoder
+    return preds

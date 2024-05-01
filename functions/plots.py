@@ -34,7 +34,7 @@ class Plots(Parent):
             cmap = [plt.get_cmap('Set2')(each) for each in linspace(0, 1, len(unique_labels)-1)]# #cmap of Set2, twilight, PuOr and cividis.
         colors = [(0, 0, 0, 1)]+[cmap[each] for each in range(len(unique_labels)-1)]# noise (-1 label) is black color
         return colors    
-    def umap(self, umapData:DataFrame,intensity:Series,ind:list[int] = [],title:str = '',figname :str= '',backgroundColor :str= 'gainsboro') -> None:#limits = [None,None,None,None]
+    def umap(self, umapData:DataFrame,intensity:Series=None,ind:list[int] = [],title:str = '',figname :str= '',backgroundColor :str= 'gainsboro') -> None:#limits = [None,None,None,None]
         '''
         plot umap with intensity according to specific feature values in each point in map
         umapData - umap coordinates of each point in sample
@@ -50,6 +50,8 @@ class Plots(Parent):
         
         # plot settings
         axs.set_facecolor(backgroundColor)
+        # if not intensity:
+        #     intensity = umapData.copy().mean(axis=1)
         vmax=intensity.quantile(0.99);vmin=intensity.quantile(0.01)
         
         # colorbar settings
@@ -70,7 +72,7 @@ class Plots(Parent):
         #     axs.set_yticklabels([])
         #     axs.set_xticklabels([])      
         
-    def labeled_umap(self, umapData:DataFrame,labels:Series,ind:list[int] = [],title:str = '',figname :str= '',backgroundColor :str= 'gainsboro',colors :list[str]=[]) -> None:#limits = [None,None,None,None]
+    def labeled_umap(self, umapData:DataFrame,labels:Series,ind:list[int] = [],title:str = '',figname :str= '',backgroundColor :str= 'gainsboro',colors :list[str]=[],UNIQ = None) -> None:#limits = [None,None,None,None]
         '''
         plot umap according to label values in each point in map
         umapData - umap coordinates of each point in sample
@@ -98,7 +100,8 @@ class Plots(Parent):
         
         ind = umapData.loc[~umapData.index.isin(labels.index)].index#drop points without label
         axs.scatter(umapData['umap1'].loc[ind],umapData['umap2'].loc[ind],c=backgroundColor, alpha=0.2,s=2)#c = backgroundColor
-        for i,uniq in enumerate(sorted(labels.unique())):#uniq values(clusters in sample)
+        UNIQ = sorted(labels.unique()) if UNIQ is None else UNIQ
+        for i,uniq in enumerate(UNIQ):#uniq values(clusters in sample)
             ind = labels[labels==uniq].index
             axs.scatter(umapData['umap1'].loc[ind],umapData['umap2'].loc[ind], s=2,label = uniq,color = colors[i])#,c = cc[cluster],
             # print(uniq)

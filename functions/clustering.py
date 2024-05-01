@@ -30,15 +30,20 @@ class Clustering(Parent):
         # self.get_attribute()#print all attributes
         # self.calc_db = False
         self.folderExists(self.dir_plots)#verify that plots folder exists
+        self.folderExists(self.dir_data)#verify that data folder exists
+        
     def read_csv(self,algorithm,samp,features,fname = '_params.csv' ): 
         params = read_csv(self.dir_data+fname, sep =',',comment='#').astype(str).replace(' ', '', regex = True) 
         for val, field in zip([i.strip() for i in [samp,features,algorithm]],['samp','var','alg']):
             params = params[params[field]==val].copy().drop(field,axis = 1)
-        params: list = params.astype(float).values.tolist()[0]
+        params: list = [] if len(params)==0 else params.astype(float).values.tolist()[0]#if no values in csv - return empty list
         if not params:       
             print('value not in csv')
-            if features=='umap':#if umap is not in csv - use default umap values
-                params = 0.1,10
+            if algorithm=='umap':#if umap is not in csv - use default umap values
+                params =[0.1,10]
+            else:#db
+                params = [0.1,50]
+        
         print(params)
         return params
 
@@ -48,7 +53,14 @@ class Clustering(Parent):
         if isfile(self.dir_data + f'umapData_{self.figname}.p') and not self.recalculate_umap: 
             umapData = self.pickle_load(f'umapData_{self.figname}', self.dir_data)
         else: #either we want to calculate umap again or the file does not exist
-            params = self.read_csv( 'umap',self.j,self.name,) if not params else params #if no params are given by user as input - take from csv
+            if params:
+                pass
+            elif isfile(self.dir_data + '_params.csv' ):
+                params = self.read_csv( 'umap',self.j,self.name,)  #if no params are given by user as input - take from csv
+            else:
+                params = [0.1,10]
+                
+                
             umapData = UMAP( n_neighbors=int(params[1]), min_dist=params[0],# verbose=True,
                             n_components=2, metric='euclidean', random_state=42,  densmap=False,).fit_transform(df[self.features].copy(),)
             self.pickle_dump(f'umapData_{self.figname}', umapData, self.dir_data)
