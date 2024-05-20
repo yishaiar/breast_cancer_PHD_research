@@ -311,17 +311,17 @@ def drawDbscan(labels,dbData,settings,colors = None,title='',figname='',figsize=
     figSettings(fig,figname,settings)
     # return colors
               
-def cluster_colors(labels):
-    unique_labels = np.sort(np.unique(labels))
-    cmap = get_colors()
-    if len(unique_labels)-1>cmap.shape[0]: #too many clusters for the preselected colors map
-    #cmap of Set2, twilight, PuOr and cividis.
-        cmap = [plt.get_cmap('Set2')(each) for each in np.linspace(0, 1, len(unique_labels)-1)]
+# def cluster_colors(labels):
+#     unique_labels = np.sort(np.unique(labels))
+#     cmap = get_colors()
+#     if len(unique_labels)-1>cmap.shape[0]: #too many clusters for the preselected colors map
+#     #cmap of Set2, twilight, PuOr and cividis.
+#         cmap = [plt.get_cmap('Set2')(each) for each in np.linspace(0, 1, len(unique_labels)-1)]
 
-    # cmap = [plt.get_cmap('PuOr')(each) for each in np.linspace(0, 1, len(unique_labels)-1)]
+#     # cmap = [plt.get_cmap('PuOr')(each) for each in np.linspace(0, 1, len(unique_labels)-1)]
 
-    colors = [(0, 0, 0, 1)]+[cmap[each] for each in range(len(unique_labels)-1)]# noise (-1 label) is black color
-    return colors           
+#     colors = [(0, 0, 0, 1)]+[cmap[each] for each in range(len(unique_labels)-1)]# noise (-1 label) is black color
+#     return colors           
 
     
 import random   

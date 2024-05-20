@@ -25,7 +25,7 @@ def removeFeatures(dict,remove_features =['']):
         dict[key] = list_
   return dict
 
-def createAdjustedDataset(k,j,dbscanData,labels,core_samples_mask,settings,figname = '',
+def createAdjustedDataset(k,j,dbscanData,labels,core_samples_mask,config,
                           clustersToRemove=[],limits = (None,None,None,None),drawFunc = None,
                           contained_samples = False
                           ):
@@ -52,8 +52,8 @@ def createAdjustedDataset(k,j,dbscanData,labels,core_samples_mask,settings,figna
 
 
 
-    _ = drawFunc(dbscanData[idx], labels[idx], core_samples_mask[idx], settings, figname='1_'+figname+'dbscan_adjusted')
-    _ = drawFunc(dbscanData[idx4], labels[idx4], core_samples_mask[idx4], settings, figname='1_'+figname+'dbscan_adjusted_stroma')
+    _ = drawFunc(dbscanData[idx], labels[idx], core_samples_mask[idx], config, figname='1_'+config['figname']+'dbscan_adjusted')
+    _ = drawFunc(dbscanData[idx4], labels[idx4], core_samples_mask[idx4], config, figname='1_'+config['figname']+'dbscan_adjusted_stroma')
 
     
     indArr = {}
@@ -189,7 +189,7 @@ def subsample_k(K,kInd,dir_data, ind = 'ind',n=500):
 
     else:# len(K)>n:
         # index file does not exist
-        if not os.path.exists(f"{dir_data}{kInd}_subsample_indexes.p"):
+        if not os.path.exists(f"{dir_data}{kInd}_subsample_indexes.p") or True :
     #     # random sample -much larger sample
             # idx=np.random.choice(len(K), replace = False, size = n)
             idx = np.asarray(K[ind].copy())
@@ -235,7 +235,7 @@ def createAppendDataset(k,namesAll,kInd,uncommonFeatures ):
         # print (K.columns)
         appendDict[i ] = K
 
-    names  = removeFeatures(namesAll.copy(),uncommonFeatures)
+    names  = removeFeatures(namesAll.copy(),uncommonFeatures)#todo:not working
     # append data
     # names['NamesAll'] 
     # k_append1= pd.DataFrame(columns =NamesAll)
