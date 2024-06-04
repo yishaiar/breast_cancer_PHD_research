@@ -562,7 +562,7 @@ def plotSplit(K,i,min_x,min_y,settings,neg_percentage,Figname,log = True,xsize =
         plt.yscale('log')
     figname = '/K'+i+ Figname
     
-    dir,show,saveSVG = settings
+    dir,show,saveSVG = settings.values()
     plt.savefig(dir+figname+'.png', format="png", bbox_inches="tight", pad_inches=0.2)
     if saveSVG:
         plt.savefig(dir+figname+'.svg', format="svg", bbox_inches="tight", pad_inches=0.2)
