@@ -97,6 +97,9 @@ def subset_labels(X,y,random_state,LEN = None):
     return X.loc[idx],y.loc[idx]
 def createDataset(df,labels,samples = None,train_samples = None,test_samples = None,random_state=42,LEN = 4000):
     '''
+    samples - the name of the original sample for this df line (i.e 4,4.1,8..etc)
+    train_samples,train_samples - list of samples in train,test
+    
     create a dataset for training and testing - 2 methods:
     1. random split using train_test_split - split a balanced random subset 
     2. split using the train_samples and test_samples lists of the original sample numbers determins which sample is for training and which is for testing
@@ -107,7 +110,7 @@ def createDataset(df,labels,samples = None,train_samples = None,test_samples = N
 
     
 
-    if not train_samples:# train samples are not provided - split randomly
+    if samples is None or not train_samples :# train samples are not provided - split randomly
         
         # take only samples that are with labels - take their class-balanced subset (random sample)  - split it into train test randomly
         # idx =[]
