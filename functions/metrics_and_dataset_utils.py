@@ -10,6 +10,7 @@ from pandas import Series
 
 from random import Random
 
+
 # define a class of metrics to use for the classification
 # save figures to a folder
 class ClassificationMetrics:
@@ -94,7 +95,9 @@ def subset_labels(X,y,random_state,LEN = None):
         label_idx = list(y[y==i].index)
         Random(random_state).shuffle(label_idx)
         idx += label_idx[:min_len]
-    return X.loc[idx],y.loc[idx]
+    
+    
+    return X.loc[idx],y.loc[idx],idx
 def createDataset(df,labels,samples = None,train_samples = None,test_samples = None,random_state=42,LEN = 4000):
     '''
     samples - the name of the original sample for this df line (i.e 4,4.1,8..etc)
@@ -122,8 +125,9 @@ def createDataset(df,labels,samples = None,train_samples = None,test_samples = N
         
         X_train, X_test, y_train, y_test = train_test_split( df.loc[labels.index], labels, stratify = labels,
                                                         test_size=0.2,random_state=random_state, shuffle=True)
-        X_train,y_train = subset_labels(X_train,y_train,random_state)
-        X_test,y_test = subset_labels(X_test,y_test,random_state)
+        X_train,y_train,idx1 = subset_labels(X_train,y_train,random_state)
+        X_test,y_test,idx2 = subset_labels(X_test,y_test,random_state)
+        
         print('train-test data split using random split')
     else: 
         # only take the samples that are with labels
@@ -135,8 +139,8 @@ def createDataset(df,labels,samples = None,train_samples = None,test_samples = N
         
         
 
-        X_train,y_train = subset_labels(X_train,y_train,random_state,LEN)
-        X_test,y_test = subset_labels(X_test,y_test,random_state,LEN)
+        X_train,y_train,idx1 = subset_labels(X_train,y_train,random_state,LEN)
+        X_test,y_test,idx2 = subset_labels(X_test,y_test,random_state,LEN)
         
             
         
@@ -148,8 +152,8 @@ def createDataset(df,labels,samples = None,train_samples = None,test_samples = N
     print(f'X_train: {len(X_train)}, X_test: {len(X_test)}')
     
     
-
-    return X_train, X_test, y_train, y_test
+    used_idx = idx1+idx2
+    return X_train, X_test, y_train, y_test,used_idx
 
 
 if __name__ == '__main__':

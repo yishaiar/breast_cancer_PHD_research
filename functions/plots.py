@@ -102,6 +102,7 @@ class Plots(Parent):
         axs.scatter(umapData['umap1'].loc[ind],umapData['umap2'].loc[ind],c=backgroundColor, alpha=0.2,s=2)#c = backgroundColor
         UNIQ = sorted(labels.unique()) if UNIQ is None else UNIQ
         for i,uniq in enumerate(UNIQ):#uniq values(clusters in sample)
+            print(i)
             ind = labels[labels==uniq].index
             axs.scatter(umapData['umap1'].loc[ind],umapData['umap2'].loc[ind], s=2,label = uniq,color = colors[i])#,c = cc[cluster],
             # print(uniq)
@@ -170,8 +171,10 @@ class Plots(Parent):
         core_samples_mask - boolean array of core points
         
         '''
-        if -1 not in labels.unique():
-            colors = colors[1:]#drop the noise color
+        # c = colors.copy()
+        # colors = c.copy()
+        if -1 not in labels.unique() and len(colors)>len(labels.unique()):
+            colors = colors[1:len(labels.unique())+1 ]#drop the noise color
         X,core_samples_mask = dbData
         # drop points without label (such when noise is dropped)
         X = DataFrame(X, columns=['db1', 'db2']).loc[labels.index] 
@@ -184,6 +187,8 @@ class Plots(Parent):
         axs.set_title(title)  
         
         for label, color in zip(sorted(labels.unique()), colors):
+            if label ==7:
+                print(1)
             class_member_mask = labels == label
             
             # cluster edges with smaller marker size for finess

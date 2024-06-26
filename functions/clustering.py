@@ -51,7 +51,9 @@ class Clustering(Parent):
     def umap(self,df :DataFrame,params:list = [])-> DataFrame:  
              
         if isfile(self.dir_data + f'umapData_{self.figname}.p') and not self.recalculate_umap: 
-            umapData = self.pickle_load(f'umapData_{self.figname}', self.dir_data)
+            self.umapData = self.pickle_load(f'umapData_{self.figname}', self.dir_data)
+            if str(type(self.umapData))!="<class 'pandas.core.frame.DataFrame'>":
+                self.umapData = DataFrame(self.umapData, columns=['umap1', 'umap2']) 
         else: #either we want to calculate umap again or the file does not exist
             if params:
                 pass
@@ -63,8 +65,9 @@ class Clustering(Parent):
                 
             umapData = UMAP( n_neighbors=int(params[1]), min_dist=params[0],# verbose=True,
                             n_components=2, metric='euclidean', random_state=42,  densmap=False,).fit_transform(df[self.features].copy(),)
-            self.pickle_dump(f'umapData_{self.figname}', umapData, self.dir_data)
-        self.umapData = DataFrame(umapData, columns=['umap1', 'umap2']) 
+            self.umapData = DataFrame(umapData, columns=['umap1', 'umap2'],index = df.index)
+            self.pickle_dump(f'umapData_{self.figname}', self.umapData, self.dir_data)
+        
         return self.umapData
     def calculate_dbscan(self,X,eps=0.1,min_samples=50):
         # DBSCAN - Density-Based Spatial Clustering of Applications with Noise. 
@@ -97,7 +100,8 @@ class Clustering(Parent):
             self.pickle_dump(f'dbColors_{self.figname}', colors, self.dir_data)
 
         labels,self.dbData,self.colors = [self.pickle_load(f'{f}_{self.figname}', self.dir_data) for f in ['dbLabels','dbData','dbColors']]
-        self.labels = Series(labels)
+        self.labels = Series(labels);
+        # self.labels.index = self.umapData.index
         
         return self.labels
     
@@ -107,6 +111,9 @@ class Clustering(Parent):
         if len(unique_labels)-1>len(cmap): #too many clusters for the preselected colors map
             cmap = [plt.get_cmap('Set2')(each) for each in np.linspace(0, 1, len(unique_labels)-1)]# #cmap of Set2, twilight, PuOr and cividis.
         colors = [(0, 0, 0, 1)]+[cmap[each] for each in range(len(unique_labels)-1)]# noise (-1 label) is black color
+        if -1 not in unique_labels:
+            colors = [cmap[each] for each in range(len(unique_labels))]# noise (-1 label) is black color
+
         return colors    
     
 

@@ -15,6 +15,7 @@ from parent_class import *
 
 
 
+
 def fitXGBClassifier(X_train, y_train,xg_params={'learning_rate':0.1,'n_estimators':1000,'max_depth':10,}):
     '''
     encode labels to integer labels by fitting label encoder
@@ -83,12 +84,12 @@ class Shap(Parent):
 
 
         for i,class_ in enumerate(self.class_names):       
-            self.plotShap(self.shap_values[i],self.X_test,self.accuracy,self.colors[i],class_ = class_,
+            self.plotShap(self.shap_values[i],self.X_test.columns,self.accuracy,self.colors[i],class_ = class_,
                         figname=f'{figname}by_{class_}')
             
     
     # return shap_values,X_test,class_names,colors,accuracy
-    def plotShap(self,shap_values,X_test,accuracy,color,class_ = None,
+    def plotShap(self,shap_values,features,accuracy,color,class_ = None,
                     max_features_display=10,
                     figname='',plot_size = [10,8]): 
 
@@ -109,13 +110,15 @@ class Shap(Parent):
         #add dim to shap vector
         shap_values1 = shap_values[newaxis,:] if len(shap_values.shape)==1 else shap_values
         
-        shap.summary_plot(shap_values1, self.X_test, plot_type="bar", color = color,show=False,
+        shap.summary_plot(shap_values1, features = features, plot_type="bar", color = color,show=False,
                         max_display = max_features_display, plot_size=plot_size)
+        print(class_)
+        print(features[np.argsort(np.sum(np.abs(shap_values1),axis = 0))[::-1]])
         
         if len(shap_values.shape)!=1:#cant plot binar classification
             ax1 = fig.add_subplot(1,2,2)
             # ax0.title.set_text(f'cluster {ind}')
-            shap.summary_plot(shap_values, X_test,  show=False,
+            shap.summary_plot(shap_values, features = features,  show=False,
                             max_display = max_features_display, plot_size=plot_size)
         
         self.figSettings(fig,figname)

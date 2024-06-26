@@ -70,7 +70,7 @@ class Heatmap(Parent):
         labels - the labels of the data (same size a the data rows index; label for each row)
         '''
         
-        ind = list(df.index) if not ind else ind# if ind is empty take all indexes
+        ind = list(df.index) if len(ind)==0 else ind# if ind is empty take all indexes
         mat = df.loc[ind].groupby(by=labels.loc[ind]).mean(numeric_only=True)[features].T
         
         drop_cols = [i for i in mat.columns if '.1'  in str(i)]
